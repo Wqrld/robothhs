@@ -12,7 +12,7 @@
 // Sensors
 #define distanceSensorIn 5
 #define distanceSensorOut 6
-#define ledSensor 7 
+#define ledSensor 7
 
 // threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
 #define threshold 50
@@ -51,158 +51,76 @@ static uint8_t latch_state;
                MOTORS
 ******************************************/
 inline void initPWM1(uint8_t freq) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer2A on PB3 (Arduino pin #11)
-    TCCR2A |= _BV(COM2A1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2a
-    TCCR2B = freq & 0x7;
-    OCR2A = 0;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 11 is now PB5 (OC1A)
-    TCCR1A |= _BV(COM1A1) | _BV(WGM10); // fast PWM, turn on oc1a
-    TCCR1B = (freq & 0x7) | _BV(WGM12);
-    OCR1A = 0;
-#else
-   #error "This chip is not supported!"
-#endif
-    #if !defined(PIC32_USE_PIN9_FOR_M1_PWM) && !defined(PIC32_USE_PIN10_FOR_M1_PWM)
-        pinMode(11, OUTPUT);
-    #endif
+
+  // use PWM from timer2A on PB3 (Arduino pin #11)
+  TCCR2A |= _BV(COM2A1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2a
+  TCCR2B = freq & 0x7;
+  OCR2A = 0;
+
+
+  pinMode(11, OUTPUT);
+
 }
 
 inline void setPWM1(uint8_t s) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer2A on PB3 (Arduino pin #11)
-    OCR2A = s;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 11 is now PB5 (OC1A)
-    OCR1A = s;
-#else
-   #error "This chip is not supported!"
-#endif
+
+  // use PWM from timer2A on PB3 (Arduino pin #11)
+  OCR2A = s;
+
 }
 
 inline void initPWM2(uint8_t freq) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer2B (pin 3)
-    TCCR2A |= _BV(COM2B1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2b
-    TCCR2B = freq & 0x7;
-    OCR2B = 0;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 3 is now PE5 (OC3C)
-    TCCR3A |= _BV(COM1C1) | _BV(WGM10); // fast PWM, turn on oc3c
-    TCCR3B = (freq & 0x7) | _BV(WGM12);
-    OCR3C = 0;
-#else
-   #error "This chip is not supported!"
-#endif
 
-    pinMode(3, OUTPUT);
+  // use PWM from timer2B (pin 3)
+  TCCR2A |= _BV(COM2B1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2b
+  TCCR2B = freq & 0x7;
+  OCR2B = 0;
+
+
+  pinMode(3, OUTPUT);
 }
 
 inline void setPWM2(uint8_t s) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer2A on PB3 (Arduino pin #11)
-    OCR2B = s;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 11 is now PB5 (OC1A)
-    OCR3C = s;
-#else
-   #error "This chip is not supported!"
-#endif
+
+  // use PWM from timer2A on PB3 (Arduino pin #11)
+  OCR2B = s;
+
 }
 
 inline void initPWM3(uint8_t freq) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer0A / PD6 (pin 6)
-    TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on OC0A
-    //TCCR0B = freq & 0x7;
-    OCR0A = 0;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 6 is now PH3 (OC4A)
-    TCCR4A |= _BV(COM1A1) | _BV(WGM10); // fast PWM, turn on oc4a
-    TCCR4B = (freq & 0x7) | _BV(WGM12);
-    //TCCR4B = 1 | _BV(WGM12);
-    OCR4A = 0;
-#else
-   #error "This chip is not supported!"
-#endif
-    pinMode(6, OUTPUT);
+
+  // use PWM from timer0A / PD6 (pin 6)
+  TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on OC0A
+  //TCCR0B = freq & 0x7;
+  OCR0A = 0;
+
+  pinMode(6, OUTPUT);
 }
 
 inline void setPWM3(uint8_t s) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer0A on PB3 (Arduino pin #6)
-    OCR0A = s;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 6 is now PH3 (OC4A)
-    OCR4A = s;
-#else
-   #error "This chip is not supported!"
-#endif
+
+  // use PWM from timer0A on PB3 (Arduino pin #6)
+  OCR0A = s;
+
 }
 
 
 
 inline void initPWM4(uint8_t freq) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer0B / PD5 (pin 5)
-    TCCR0A |= _BV(COM0B1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on oc0a
-    //TCCR0B = freq & 0x7;
-    OCR0B = 0;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 5 is now PE3 (OC3A)
-    TCCR3A |= _BV(COM1A1) | _BV(WGM10); // fast PWM, turn on oc3a
-    TCCR3B = (freq & 0x7) | _BV(WGM12);
-    //TCCR4B = 1 | _BV(WGM12);
-    OCR3A = 0;
-#else
-   #error "This chip is not supported!"
-#endif
-    pinMode(5, OUTPUT);
+
+  // use PWM from timer0B / PD5 (pin 5)
+  TCCR0A |= _BV(COM0B1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on oc0a
+  //TCCR0B = freq & 0x7;
+  OCR0B = 0;
+
+  pinMode(5, OUTPUT);
 }
 
 inline void setPWM4(uint8_t s) {
-#if defined(__AVR_ATmega8__) || \
-    defined(__AVR_ATmega48__) || \
-    defined(__AVR_ATmega88__) || \
-    defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328P__)
-    // use PWM from timer0A on PB3 (Arduino pin #6)
-    OCR0B = s;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    // on arduino mega, pin 6 is now PH3 (OC4A)
-    OCR3A = s;
-#else
-   #error "This chip is not supported!"
-#endif
+
+  // use PWM from timer0A on PB3 (Arduino pin #6)
+  OCR0B = s;
+
 }
 
 
@@ -211,26 +129,26 @@ void initMotor(uint8_t num, uint8_t freq) {
   uint8_t pwmfreq = freq;
 
   switch (num) {
-  case 1:
-    latch_state &= ~_BV(MOTOR1_A) & ~_BV(MOTOR1_B); // set both motor pins to 0
-    latch_tx();
-    initPWM1(freq);
-    break;
-  case 2:
-    latch_state &= ~_BV(MOTOR2_A) & ~_BV(MOTOR2_B); // set both motor pins to 0
-    latch_tx();
-    initPWM2(freq);
-    break;
-  case 3:
-    latch_state &= ~_BV(MOTOR3_A) & ~_BV(MOTOR3_B); // set both motor pins to 0
-    latch_tx();
-    initPWM3(freq);
-    break;
-  case 4:
-    latch_state &= ~_BV(MOTOR4_A) & ~_BV(MOTOR4_B); // set both motor pins to 0
-    latch_tx();
-    initPWM4(freq);
-    break;
+    case 1:
+      latch_state &= ~_BV(MOTOR1_A) & ~_BV(MOTOR1_B); // set both motor pins to 0
+      latch_tx();
+      initPWM1(freq);
+      break;
+    case 2:
+      latch_state &= ~_BV(MOTOR2_A) & ~_BV(MOTOR2_B); // set both motor pins to 0
+      latch_tx();
+      initPWM2(freq);
+      break;
+    case 3:
+      latch_state &= ~_BV(MOTOR3_A) & ~_BV(MOTOR3_B); // set both motor pins to 0
+      latch_tx();
+      initPWM3(freq);
+      break;
+    case 4:
+      latch_state &= ~_BV(MOTOR4_A) & ~_BV(MOTOR4_B); // set both motor pins to 0
+      latch_tx();
+      initPWM4(freq);
+      break;
   }
 }
 
@@ -239,34 +157,34 @@ void drive(uint8_t cmd, uint8_t motornum) {
 
   //Decide which motor we should use
   switch (motornum) {
-  case 1:
-    a = MOTOR1_A; b = MOTOR1_B; break;
-  case 2:
-    a = MOTOR2_A; b = MOTOR2_B; break;
-  case 3:
-    a = MOTOR3_A; b = MOTOR3_B; break;
-  case 4:
-    a = MOTOR4_A; b = MOTOR4_B; break;
-  default:
-    return;
+    case 1:
+      a = MOTOR1_A; b = MOTOR1_B; break;
+    case 2:
+      a = MOTOR2_A; b = MOTOR2_B; break;
+    case 3:
+      a = MOTOR3_A; b = MOTOR3_B; break;
+    case 4:
+      a = MOTOR4_A; b = MOTOR4_B; break;
+    default:
+      return;
   }
-  
+
   switch (cmd) {
-  case FORWARD:
-    latch_state |= _BV(a); // Set bit a to 1
-    latch_state &= ~_BV(b);  //Set bit b to 0
-    latch_tx();
-    break;
-  case BACKWARD:
-    latch_state &= ~_BV(a); // Set bit a to 0
-    latch_state |= _BV(b);  // Set bit b to 1
-    latch_tx();
-    break;
-  case RELEASE:
-    latch_state &= ~_BV(a);     // A and B both low (0)
-    latch_state &= ~_BV(b);   
-    latch_tx();
-    break;
+    case FORWARD:
+      latch_state |= _BV(a); // Set bit a to 1
+      latch_state &= ~_BV(b);  //Set bit b to 0
+      latch_tx();
+      break;
+    case BACKWARD:
+      latch_state &= ~_BV(a); // Set bit a to 0
+      latch_state |= _BV(b);  // Set bit b to 1
+      latch_tx();
+      break;
+    case RELEASE:
+      latch_state &= ~_BV(a);     // A and B both low (0)
+      latch_state &= ~_BV(b);
+      latch_tx();
+      break;
   }
 }
 
@@ -279,11 +197,11 @@ void latch_tx(void) {
   //SER_PORT &= ~_BV(SER);
   digitalWrite(MOTORDATA, LOW);
 
-  for (i=0; i<8; i++) {
+  for (i = 0; i < 8; i++) {
     //CLK_PORT &= ~_BV(CLK);
     digitalWrite(MOTORCLK, LOW);
 
-    if (latch_state & _BV(7-i)) {
+    if (latch_state & _BV(7 - i)) {
       //SER_PORT |= _BV(SER);
       digitalWrite(MOTORDATA, HIGH);
     } else {
@@ -299,15 +217,15 @@ void latch_tx(void) {
 
 void setup() {
 
-// pinmodes sensors
-pinMode(distanceSensorOut, OUTPUT);
-pinMode(distanceSensorIn, INPUT);
-pinMode(ledSensor, INPUT);
+  // pinmodes sensors
+  pinMode(distanceSensorOut, OUTPUT);
+  pinMode(distanceSensorIn, INPUT);
+  pinMode(ledSensor, INPUT);
 
-// Servo
-s.attach(servoPin);
+  // Servo
+  s.attach(servoPin);
 
-// Motorcontroller
+  // Motorcontroller
   pinMode(MOTORLATCH, OUTPUT);
   pinMode(MOTORENABLE, OUTPUT);
   pinMode(MOTORDATA, OUTPUT);
@@ -317,68 +235,68 @@ s.attach(servoPin);
 
   latch_tx();
 
-// Enable motor
+  // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
   initMotor(1, 128); // up to 255
   initMotor(2, 128); // up to 255
   initMotor(3, 128); // up to 255
   initMotor(4, 128); // up to 255
-  
+
 
 }
 
 int getDistance() {
 
-// Send out 10microsecond pulse
+  // Send out 10microsecond pulse
   digitalWrite(distanceSensorOut, HIGH);
   delayMicroseconds(10);
-  digitalWrite (distanceSensorOut,LOW); 
+  digitalWrite (distanceSensorOut, LOW);
 
   uint32_t duration = pulseIn(distanceSensorIn, HIGH); // Find rtt duration
 
-  double distance = duration *0.034029/2; // Calculate distance
+  double distance = duration * 0.034029 / 2; // Calculate distance
   return distance;
 }
 
-int getIRBrightness(){
+int getIRBrightness() {
   // Todo implement
 
   return 0;
 }
 
 void loop() {
-int servoAngle = 0;
-s.write(servoAngle);
-int hoogsteBrightness = 0;
+  int servoAngle = 0;
+  s.write(servoAngle);
+  int hoogsteBrightness = 0;
 
 
-while(true){
-int hoogsteAngle = 0;
-int hoogsteBrightness = 0;
-for(int i = 0; i <= 18; i++){
-  s.write(10 * i);
-  int brightness = getIRBrightness();
-  if(brightness > hoogsteBrightness){
-    hoogsteBrightness = brightness;
-    hoogsteAngle = 10 * i;
+  while (true) {
+    int hoogsteAngle = 0;
+    int hoogsteBrightness = 0;
+    for (int i = 0; i <= 18; i++) {
+      s.write(10 * i);
+      int brightness = getIRBrightness();
+      if (brightness > hoogsteBrightness) {
+        hoogsteBrightness = brightness;
+        hoogsteAngle = 10 * i;
+      }
+    }
+    //optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
+
+    if (hoogsteBrightness > threshold) {
+      // We hebben nu de hoogste brightness en deze was meer dan de threshold, rijden
+      break;
+    }
+    // Als we hier aankomen dan konden we niks vinden, draaien en nog eens de hele dans doen
+
   }
-}
-//optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
 
-if(hoogsteBrightness > threshold){
-// We hebben nu de hoogste brightness en deze was meer dan de threshold, rijden
-  break;
-}
-// Als we hier aankomen dan konden we niks vinden, draaien en nog eens de hele dans doen
-
-}
-
-//todo: draai in de goede richting en rijd naar voren
-//rij_voren(500)
+  //todo: draai in de goede richting en rijd naar voren
+  //rij_voren(500)
 
 
 
-// we komen steeds dichterbij, herhaal de loop tot we er zijn.
+  // we komen steeds dichterbij, herhaal de loop tot we er zijn.
 
 }
