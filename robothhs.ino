@@ -238,10 +238,15 @@ void setup() {
   // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
-  initMotor(1, 128); // up to 255
-  initMotor(2, 128); // up to 255
-  initMotor(3, 128); // up to 255
-  initMotor(4, 128); // up to 255
+  initMotor(1, 128); // frequency up to 255
+  initMotor(2, 128); // frequency up to 255
+  initMotor(3, 128); // frequency up to 255
+  initMotor(4, 128); // frequency up to 255
+  
+  setPWM1(128) // speed (duty cycle) up to 255
+  setPWM2(128) // speed (duty cycle) up to 255
+  setPWM3(128) // speed (duty cycle) up to 255
+  setPWM4(128) // speed (duty cycle) up to 255
 
 
 }
