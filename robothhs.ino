@@ -10,9 +10,9 @@
 /////////////////
 
 // Sensors
-#define distanceSensorIn 5
-#define distanceSensorOut 6
-#define ledSensor 7
+#define distanceSensorIn A0 // are these defined correctly?, try port D9-D10
+#define distanceSensorOut A0 
+#define ledSensor 9 // todo: setup and probably change port
 
 // threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
 #define threshold 50
@@ -40,7 +40,7 @@
 #define RELEASE 4
 
 // Servo
-#define servoPin 8
+#define servoPin 10
 Servo s;
 
 static uint8_t latch_state;
