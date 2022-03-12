@@ -253,7 +253,7 @@ double getDistance() {
   delayMicroseconds(10);
   digitalWrite (distanceSensorOut, LOW);
 
-  uint32_t duration = pulseIn(distanceSensorIn, HIGH); // Find rtt duration
+  unsigned long duration = pulseIn(distanceSensorIn, HIGH); // Find rtt duration
 
   double distance = duration * 0.034029 / 2; // Calculate distance
   return distance;
