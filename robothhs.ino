@@ -246,7 +246,7 @@ void setup() {
 
 }
 
-int getDistance() {
+double getDistance() {
 
   // Send out 10microsecond pulse
   digitalWrite(distanceSensorOut, HIGH);
