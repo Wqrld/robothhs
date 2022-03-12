@@ -188,6 +188,17 @@ void drive(uint8_t cmd, uint8_t motornum) {
   }
 }
 
+void latch_tx_short_untested(void) {
+  // latch has to go low before transmitting
+  digitalWrite(MOTORLATCH, LOW);
+  // probably unneeded
+  digitalWrite(MOTORDATA, LOW);
+  // shift out the data, LSB first (untested, but matches the old latchtx)
+  shiftOut(MOTORDATA, MOTORCLK, LSBFIRST, latch_state);
+  // enable the latch again
+  digitalWrite(MOTORLATCH, HIGH);
+}
+
 void latch_tx(void) {
   uint8_t i;
 
