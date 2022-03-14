@@ -10,8 +10,8 @@
 /////////////////
 
 // Sensors
-#define distanceSensorIn A0 // are these defined correctly?, try port D9-D10
-#define distanceSensorOut A0 
+#define distanceSensorIn A0 // are these defined correctly? probably want to switch around
+#define distanceSensorOut A1
 #define ledSensor 9 // todo: setup and probably change port
 
 // threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
@@ -36,7 +36,6 @@
 // Constants that the user passes in to the motor calls
 #define FORWARD 1
 #define BACKWARD 2
-#define BRAKE 3
 #define RELEASE 4
 
 // Motor frequency definitions (all 1khz, may be audible but best torque)
@@ -47,6 +46,7 @@
 #define servoPin 10
 Servo s;
 
+// Stored the state of the shift register
 static uint8_t latch_state;
 
 
@@ -66,6 +66,7 @@ inline void initPWM1(uint8_t freq) {
 
 }
 
+// Duty cycle for motor 1
 inline void setPWM1(uint8_t s) {
 
   // use PWM from timer2A on PB3 (Arduino pin #11)
@@ -84,6 +85,7 @@ inline void initPWM2(uint8_t freq) {
   pinMode(3, OUTPUT);
 }
 
+// Duty cycle for motor 2
 inline void setPWM2(uint8_t s) {
 
   // use PWM from timer2A on PB3 (Arduino pin #11)
@@ -101,6 +103,7 @@ inline void initPWM3(uint8_t freq) {
   pinMode(6, OUTPUT);
 }
 
+// Duty cycle for motor 3
 inline void setPWM3(uint8_t s) {
 
   // use PWM from timer0A on PB3 (Arduino pin #6)
@@ -120,6 +123,7 @@ inline void initPWM4(uint8_t freq) {
   pinMode(5, OUTPUT);
 }
 
+// Duty cycle for motor 4
 inline void setPWM4(uint8_t s) {
 
   // use PWM from timer0A on PB3 (Arduino pin #6)
@@ -129,8 +133,6 @@ inline void setPWM4(uint8_t s) {
 
 
 void initMotor(uint8_t num, uint8_t freq) {
-  uint8_t motornum = num;
-  uint8_t pwmfreq = freq;
 
   switch (num) {
     case 1:
@@ -246,7 +248,7 @@ void setup() {
   pinMode(MOTORDATA, OUTPUT);
   pinMode(MOTORCLK, OUTPUT);
 
-  latch_state = 0;
+  latch_state = 0; // reset all motor states
 
   latch_tx();
 
@@ -263,14 +265,18 @@ void setup() {
   setPWM3(128) // speed (duty cycle) up to 255
   setPWM4(128) // speed (duty cycle) up to 255
 
-  drive(FORWARD, 1);
+  //Possible options: FORWARD, BACKWARD, RELEASE 
+  drive(FORWARD, 1); 
   drive(FORWARD, 2);
   drive(FORWARD, 3);
   drive(FORWARD, 4);
+  
+  // Init serial output
+  Serial.begin(9600);
 
 }
 
-double getDistance() {
+unsigned long getDistance() {
 
   // Send out 10microsecond pulse
   digitalWrite(distanceSensorOut, HIGH);
@@ -279,7 +285,7 @@ double getDistance() {
 
   unsigned long duration = pulseIn(distanceSensorIn, HIGH); // Find rtt duration
 
-  double distance = duration * 0.034029 / 2; // Calculate distance
+  unsigned long distance = duration * 0.034029 / 2; // Calculate distance
   return distance;
 }
 
@@ -298,6 +304,7 @@ void loop() {
   while (true) {
     int hoogsteAngle = 0;
     int hoogsteBrightness = 0;
+    Serial.println(getDistance());
     for (int i = 0; i <= 18; i++) {
       s.write(10 * i);
       int brightness = getIRBrightness();
