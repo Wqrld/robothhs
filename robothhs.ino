@@ -259,6 +259,10 @@ void setup() {
   setPWM3(128) // speed (duty cycle) up to 255
   setPWM4(128) // speed (duty cycle) up to 255
 
+  drive(FORWARD, 1);
+  drive(FORWARD, 2);
+  drive(FORWARD, 3);
+  drive(FORWARD, 4);
 
 }
 
