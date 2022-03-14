@@ -39,6 +39,10 @@
 #define BRAKE 3
 #define RELEASE 4
 
+// Motor frequency definitions (all 1khz, may be audible but best torque)
+#define MOTOR12_1KHZ _BV(CS22)              // divide by 64
+#define MOTOR34_1KHZ _BV(CS01) | _BV(CS00)  // divide by 64
+
 // Servo
 #define servoPin 10
 Servo s;
@@ -249,10 +253,10 @@ void setup() {
   // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
-  initMotor(1, 128); // frequency up to 255
-  initMotor(2, 128); // frequency up to 255
-  initMotor(3, 128); // frequency up to 255
-  initMotor(4, 128); // frequency up to 255
+  initMotor(1, MOTOR12_1KHZ); // frequency up to 255
+  initMotor(2, MOTOR12_1KHZ); // frequency up to 255
+  initMotor(3, MOTOR34_1KHZ); // frequency up to 255
+  initMotor(4, MOTOR34_1KHZ); // frequency up to 255
   
   setPWM1(128) // speed (duty cycle) up to 255
   setPWM2(128) // speed (duty cycle) up to 255
