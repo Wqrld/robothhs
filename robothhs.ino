@@ -1,5 +1,11 @@
 #include <Servo.h>
 
+//todo trigger pin echo pin distout distin
+// linksachter motor2
+// linksvoor M1
+// rechtsvoor m4
+// rechtsachter m3
+
 //////////////////
 // Docs voor AFMOTOR
 // https://codebender.cc/library/AFMotor#AFMotor.cpp
