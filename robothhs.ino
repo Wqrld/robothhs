@@ -52,6 +52,10 @@
 #define servoPin 10
 Servo s;
 
+//IRSensor
+#define IRSENSOR A2 
+#define IRLED A3 
+
 // Stored the state of the shift register
 static uint8_t latch_state;
 
@@ -239,7 +243,10 @@ void latch_tx(void) {
 }
 
 void setup() {
-
+  // pinmodes IRSensors
+  pinMode (IRSENSOR, INPUT); 
+  pinMode (IRLED, OUTPUT); 
+  
   // pinmodes sensors
   pinMode(distanceSensorOut, OUTPUT);
   pinMode(distanceSensorIn, INPUT);
@@ -327,6 +334,7 @@ void loop() {
   int servoAngle = 0;
   s.write(servoAngle);
   int hoogsteBrightness = 0;
+  int statussensor = digitalRead (IRSENSOR);
 
 
   while (true) {
@@ -342,6 +350,16 @@ void loop() {
         hoogsteAngle = 10 * i;
       }
     }
+    
+    //IRLED aan en uit
+    if (statussensor == 1) {
+    digitalWrite(IRLED, LOW); // LED LOW
+  }
+  else
+  {
+    digitalWrite(IRLED, HIGH); // LED High
+  }
+  
     //optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
 
     if (hoogsteBrightness > threshold) {
