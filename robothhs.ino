@@ -279,6 +279,7 @@ void setup() {
   
   // Init serial output
   Serial.begin(9600);
+  Serial.flush();
 
 }
 
@@ -301,6 +302,27 @@ int getIRBrightness() {
   return 0;
 }
 
+// Run this from the main loop
+void checkBlueTooth() {
+  while(Serial.available() > 0){
+   
+    char input = (char) Serial.read();
+    // pagina 32 voor de benodigde opdrachten, vb:
+    
+    // char, dus enkele aanhalingstekens
+    if(input == 'F') {
+     //rijnaarvoren(); 
+    }
+    
+    // ....
+    
+    
+    
+    
+    
+  }
+}
+
 void loop() {
   int servoAngle = 0;
   s.write(servoAngle);
@@ -308,6 +330,7 @@ void loop() {
 
 
   while (true) {
+    checkBlueTooth();
     int hoogsteAngle = 0;
     int hoogsteBrightness = 0;
     Serial.println(getDistance());
