@@ -260,15 +260,15 @@ void setup() {
   initMotor(3, MOTOR34_1KHZ); // frequency up to 255
   initMotor(4, MOTOR34_1KHZ); // frequency up to 255
   
-  setPWM1(128) // speed (duty cycle) up to 255
-  setPWM2(128) // speed (duty cycle) up to 255
-  setPWM3(128) // speed (duty cycle) up to 255
-  setPWM4(128) // speed (duty cycle) up to 255
+  setPWM1(168); // speed (duty cycle) up to 255
+  setPWM2(168); // speed (duty cycle) up to 255
+  setPWM3(168); // speed (duty cycle) up to 255
+  setPWM4(168); // speed (duty cycle) up to 255
 
   //Possible options: FORWARD, BACKWARD, RELEASE 
   drive(FORWARD, 1); 
-  drive(FORWARD, 2);
-  drive(FORWARD, 3);
+  drive(BACKWARD, 2);
+  drive(BACKWARD, 3);
   drive(FORWARD, 4);
   
   // Init serial output
