@@ -52,9 +52,6 @@
 #define servoPin 10
 Servo s;
 
-//IRSensor
-#define IRSENSOR A2 
-#define IRLED A3 
 
 // Stored the state of the shift register
 static uint8_t latch_state;
@@ -243,9 +240,7 @@ void latch_tx(void) {
 }
 
 void setup() {
-  // pinmodes IRSensors
-  pinMode (IRSENSOR, INPUT); 
-  pinMode (IRLED, OUTPUT); 
+  
   
   // pinmodes sensors
   pinMode(distanceSensorOut, OUTPUT);
@@ -334,8 +329,8 @@ void loop() {
   int servoAngle = 0;
   s.write(servoAngle);
   int hoogsteBrightness = 0;
-  int statussensor = digitalRead (IRSENSOR);
-
+  int Irbakken[] = {A2, A5, A3, A4};
+  
 
   while (true) {
     checkBlueTooth();
@@ -351,14 +346,11 @@ void loop() {
       }
     }
     
-    //IRLED aan en uit
-    if (statussensor == 1) {
-    digitalWrite(IRLED, LOW); // LED LOW
+    //Gedetecteerd
+    for(int z = 0; z < 4; z++){
+    Serial.println(analogRead(Irbakken[z]));
   }
-  else
-  {
-    digitalWrite(IRLED, HIGH); // LED High
-  }
+  
   
     //optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
 
