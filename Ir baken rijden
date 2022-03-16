@@ -1,0 +1,43 @@
+Dit is wat tot nu toe heb bedacht maar klopt niet bij motors
+Want ik weet niet hoe je die motors moet aan sturen
+Ten tweede heb ik een finctie grootste gemaakt ondat ik dacht dat
+Je de data van de IR baken zo opslaan.
+
+////functie voor het grootste getal van de IR Baken//////////////////////////////////////////
+float GROOTSTE(){
+for(int H; H>= 50; H++){
+float P= array[H];
+float MAX= 0
+
+if(P>= MAX){
+print(MAX= P)}
+    }
+}
+
+/////  12 stappen van 7graden om alles rondom uit telezen (waar de IR baken staat)/////////
+Void Draaien();
+For(int G; G>=12; G++){
+digitaWrite(linksachter, HIGH);
+digitalWrite(Rechtsvoor, HIGH);
+delay(500);
+digitalWrite(linksachter, LOW);
+digitalWrite(Rechtsvoor, LOW);
+
+/////Het meten van Met IR sensoren (BAKEN)/////🎶🎶🎶🎶🎶🎶🎶😢😢😢😢😎😎😎😉😉😉😉
+}
+
+Void positioneren(){
+For(int G; G>=12; G++){
+digitaWrite(linksachter, HIGH);
+digitalWrite(Rechtsvoor, HIGH);
+delay(500);
+digitalWrite(linksachter, LOW);
+digitalWrite(Rechtsvoor, LOW);
+
+if(GROOTSTE == Sensorwaarde){
+Break;
+    }
+}
+  
+Na dat je hier dus gaat staat moet je gaan rijden er naar toe
+Hoe weet ik dus niet steven
