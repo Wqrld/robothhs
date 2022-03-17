@@ -1,43 +1,57 @@
-Dit is wat tot nu toe heb bedacht maar klopt niet bij motors
-Want ik weet niet hoe je die motors moet aan sturen
-Ten tweede heb ik een finctie grootste gemaakt ondat ik dacht dat
-Je de data van de IR baken zo opslaan.
+
+
+/// array's voor opslaan van meting van Ir baken///////////////////////////////////////////////
+float arrayA[50];
+float arrayB[50];
+float arrayC[50];
+float arrayD[50];
 
 ////functie voor het grootste getal van de IR Baken//////////////////////////////////////////
 float GROOTSTE(){
-for(int H; H>= 50; H++){
-float P= array[H];
-float MAX= 0
+    for(int H; H>= 50; H++){
+    float P= array[H];
+    float MAX= 0
 
-if(P>= MAX){
-print(MAX= P)}
+        if(P>= MAX){
+        digitalWrite(MAX= P);
+        }
     }
 }
 
-/////  12 stappen van 7graden om alles rondom uit telezen (waar de IR baken staat)/////////
-Void Draaien();
-For(int G; G>=12; G++){
-digitaWrite(linksachter, HIGH);
-digitalWrite(Rechtsvoor, HIGH);
-delay(500);
-digitalWrite(linksachter, LOW);
-digitalWrite(Rechtsvoor, LOW);
 
-/////Het meten van Met IR sensoren (BAKEN)/////🎶🎶🎶🎶🎶🎶🎶😢😢😢😢😎😎😎😉😉😉😉
+/////  12 stappen van 7graden om alles rondom uit telezen (waar de IR baken staat)/////////
+Void Draaien(){
+    For(int G; G>=12; G++){
+    drive(FORWARD, 2);
+    drive(BACKWARD, 3);
+    delay(500);
+    drive(RELEASE, 2);
+    drive(RELEASE, 3);
+
+        for(int z = 0; z < 4; z++){
+        Serial.println(analogRead(Irbakken[z]));
+        if(z==1){analogRead("%f", arrayA);}
+        if(z==2){analogRead("%f", arrayB);}
+        if(z==3){analogRead("%f", arrayC);}
+        if(z==4){analogRead("%f", arrayD)};
+        }
+    }
 }
 
 Void positioneren(){
-For(int G; G>=12; G++){
-digitaWrite(linksachter, HIGH);
-digitalWrite(Rechtsvoor, HIGH);
-delay(500);
-digitalWrite(linksachter, LOW);
-digitalWrite(Rechtsvoor, LOW);
+    For(int G; G>=12; G++){
+    drive(FORWARD, 2);
+    drive(BACKWARD, 3);
+    delay(500)
+    drive(RELEASE, 2);
+    drive(RELEASE, 3);
 
-if(GROOTSTE == Sensorwaarde){
-Break;
-    }
+        if(GROOTSTE == Sensorwaarde){
+        break;
+        }
+    } 
 }
   
-Na dat je hier dus gaat staat moet je gaan rijden er naar toe
-Hoe weet ik dus niet steven
+Wat nog moet gebeuren is dat die dus draait totdat die de GROOTSTE gemeten waarden gelijk wordt
+aan de waarde die dan opnieuw tijdens het draaien meet dan staat die met 1 van de sensoren naar de
+grootste waarden moeten we alleen nog weten aan welke kant en dan kun je gaan rijden.
