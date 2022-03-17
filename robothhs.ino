@@ -16,8 +16,8 @@
 /////////////////
 
 // Sensors
-#define distanceSensorIn A0 // are these defined correctly? probably want to switch around
-#define distanceSensorOut A1
+#define EchoPin A0 // are these defined correctly? probably want to switch around
+#define TriggerPin A1
 #define ledSensor 9 // todo: setup and probably change port
 
 // threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
@@ -56,28 +56,34 @@ Servo s;
 // Stored the state of the shift register
 static uint8_t latch_state;
 
+// Poort indices voor de IR baken sensoren.
+int Irbakken[] = {A2, A5, A3, A4};
 
 
 /******************************************
                MOTORS
 ******************************************/
+
+// Timer registers:
+// TCCR: timer control register, zegmaar alle settings
+// OCR: output compare register, voor de duty cycle
+
+// VGM20 & VGM21 bits: waveform generation. WGM20 en WGM21 op op 0b11 geven aan om fast pwm te gebruiken.
+// Alternatief is phase correct pwm, zie https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm
+// COMn* bits: Compare on match, enable/disable/invert output n
+// in ons geval zetten we ze aan op non-inverted.
+
 inline void initPWM1(uint8_t freq) {
 
   // use PWM from timer2A on PB3 (Arduino pin #11)
   TCCR2A |= _BV(COM2A1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2a
   TCCR2B = freq & 0x7;
+
+  // Duty cycle op 0
   OCR2A = 0;
 
 
   pinMode(11, OUTPUT);
-
-}
-
-// Duty cycle for motor 1
-inline void setPWM1(uint8_t s) {
-
-  // use PWM from timer2A on PB3 (Arduino pin #11)
-  OCR2A = s;
 
 }
 
@@ -86,56 +92,56 @@ inline void initPWM2(uint8_t freq) {
   // use PWM from timer2B (pin 3)
   TCCR2A |= _BV(COM2B1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2b
   TCCR2B = freq & 0x7;
+
+  // Duty cycle op 0
   OCR2B = 0;
 
 
   pinMode(3, OUTPUT);
 }
 
-// Duty cycle for motor 2
-inline void setPWM2(uint8_t s) {
-
-  // use PWM from timer2A on PB3 (Arduino pin #11)
-  OCR2B = s;
-
-}
 
 inline void initPWM3(uint8_t freq) {
 
   // use PWM from timer0A / PD6 (pin 6)
   TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on OC0A
   //TCCR0B = freq & 0x7;
+
+  // Duty cycle op 0
   OCR0A = 0;
 
   pinMode(6, OUTPUT);
 }
-
-// Duty cycle for motor 3
-inline void setPWM3(uint8_t s) {
-
-  // use PWM from timer0A on PB3 (Arduino pin #6)
-  OCR0A = s;
-
-}
-
-
 
 inline void initPWM4(uint8_t freq) {
 
   // use PWM from timer0B / PD5 (pin 5)
   TCCR0A |= _BV(COM0B1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on oc0a
   //TCCR0B = freq & 0x7;
+
+  // Duty cycle op 0
   OCR0B = 0;
 
   pinMode(5, OUTPUT);
 }
 
-// Duty cycle for motor 4
-inline void setPWM4(uint8_t s) {
+// Set duty cycles
+void setSpeed(uint8_t s) {
+    // OCR = output compare register
+    // Je timer telt op tot 255, en gaat uit als de waarde van het OCR* register gehaald is.
+    // Hierdoor krijg je een duty cycle op een schaal van 0-255
 
-  // use PWM from timer0A on PB3 (Arduino pin #6)
+  // motor 1, use PWM from timer2A on PB3 (Arduino pin #11)
+  OCR2A = s;
+
+  // motor 2, use PWM from timer2B (pin 3)
+  OCR2B = s;
+
+  // motor 3, use PWM from timer0A / PD6 (pin 6)
+  OCR0A = s;
+
+  // motor 4, use PWM from timer0B / PD5 (pin 5)
   OCR0B = s;
-
 }
 
 
@@ -164,6 +170,8 @@ void initMotor(uint8_t num, uint8_t freq) {
       break;
   }
 }
+
+// TODO evt aanpassen voor de omgedraaide motoren?
 
 void drive(uint8_t cmd, uint8_t motornum) {
   uint8_t a, b;
@@ -242,9 +250,10 @@ void latch_tx(void) {
 void setup() {
   
   
+  
   // pinmodes sensors
-  pinMode(distanceSensorOut, OUTPUT);
-  pinMode(distanceSensorIn, INPUT);
+  pinMode(TriggerPin, OUTPUT);
+  pinMode(EchoPin, INPUT);
   pinMode(ledSensor, INPUT);
 
   // Servo
@@ -263,15 +272,14 @@ void setup() {
   // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
-  initMotor(1, MOTOR12_1KHZ); // frequency up to 255
-  initMotor(2, MOTOR12_1KHZ); // frequency up to 255
-  initMotor(3, MOTOR34_1KHZ); // frequency up to 255
-  initMotor(4, MOTOR34_1KHZ); // frequency up to 255
+  //1khz geeft de beste efficiency
+  initMotor(1, MOTOR12_1KHZ); 
+  initMotor(2, MOTOR12_1KHZ);
+  initMotor(3, MOTOR34_1KHZ); 
+  initMotor(4, MOTOR34_1KHZ); 
   
-  setPWM1(168); // speed (duty cycle) up to 255
-  setPWM2(168); // speed (duty cycle) up to 255
-  setPWM3(168); // speed (duty cycle) up to 255
-  setPWM4(168); // speed (duty cycle) up to 255
+  // speed (duty cycle) up to 255, maar tot 128 veilig
+  setSpeed(128); 
 
   //Possible options: FORWARD, BACKWARD, RELEASE 
   drive(FORWARD, 1); 
@@ -288,11 +296,11 @@ void setup() {
 unsigned long getDistance() {
 
   // Send out 10microsecond pulse
-  digitalWrite(distanceSensorOut, HIGH);
+  digitalWrite(TriggerPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite (distanceSensorOut, LOW);
+  digitalWrite (TriggerPin, LOW);
 
-  unsigned long duration = pulseIn(distanceSensorIn, HIGH); // Find rtt duration
+  unsigned long duration = pulseIn(EchoPin, HIGH); // Find rtt duration
 
   unsigned long distance = duration * 0.034029 / 2; // Calculate distance
   return distance;
@@ -326,17 +334,24 @@ void checkBlueTooth() {
 }
 
 void loop() {
+  // Reset alle info voor een nieuwe run
   int servoAngle = 0;
   s.write(servoAngle);
   int hoogsteBrightness = 0;
-  int Irbakken[] = {A2, A5, A3, A4};
   
 
   while (true) {
+    
+    // Hebben we nieuwe bluetooth commandos gehad?
     checkBlueTooth();
+
     int hoogsteAngle = 0;
-    int hoogsteBrightness = 0;
+    hoogsteBrightness = 0;
+
+    // HCSR04 distance sensor afstand
     Serial.println(getDistance());
+
+    // Draai, scan, etc
     for (int i = 0; i <= 18; i++) {
       s.write(10 * i);
       int brightness = getIRBrightness();
@@ -346,7 +361,7 @@ void loop() {
       }
     }
     
-    //Gedetecteerd
+    //Print alle IR sensor readouts.
     for(int z = 0; z < 4; z++){
     Serial.println(analogRead(Irbakken[z]));
   }
