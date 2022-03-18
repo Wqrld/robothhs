@@ -1,40 +1,35 @@
 
 
 /// array's voor opslaan van meting van Ir baken///////////////////////////////////////////////
-float arrayA[50];
-float arrayB[50];
-float arrayC[50];
-float arrayD[50];
+float arrayA2[12];
+float arrayA5[12];
+float arrayA3[12];
+float arrayA4[12];
 
 ////functie voor het grootste getal van de IR Baken//////////////////////////////////////////
 float GROOTSTE(){
-    for(int H; H>= 50; H++){
-    float P= array[H];
-    float MAX= 0
-
-        if(P>= MAX){
-        digitalWrite(MAX= P);
-        }
-    }
+    
 }
 
 
 /////  12 stappen van 7graden om alles rondom uit telezen (waar de IR baken staat)/////////
 Void Draaien(){
     For(int G; G>=12; G++){
+    ArrayA2[G] = analogRead(A2);
+    ArrayA5[G] = analogRead(A5);
+    ArrayA3[G] = analogRead(A3);
+    ArrayA4[G] = analogRead(A4);    
+    
+    drive(FORWARD, 1);
     drive(FORWARD, 2);
     drive(BACKWARD, 3);
+    drive(BACKWARD, 4);
     delay(500);
+    drive(RELEASE, 1);
     drive(RELEASE, 2);
     drive(RELEASE, 3);
-
-        for(int z = 0; z < 4; z++){
-        Serial.println(analogRead(Irbakken[z]));
-        if(z==1){analogRead("%f", arrayA);}
-        if(z==2){analogRead("%f", arrayB);}
-        if(z==3){analogRead("%f", arrayC);}
-        if(z==4){analogRead("%f", arrayD)};
-        }
+    drive(RELEASE, 4);
+    
     }
 }
 
