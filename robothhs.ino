@@ -349,6 +349,7 @@ unsigned long getDistance() {
   delayMicroseconds(10);
   digitalWrite (TriggerPin, LOW);
 
+//TODO add timeout, in microseconds
   unsigned long duration = pulseIn(EchoPin, HIGH); // Find rtt duration
 
   unsigned long distance = duration * 0.034029 / 2; // Calculate distance
@@ -387,6 +388,8 @@ void loop() {
   int servoAngle = 0;
   s.write(servoAngle);
   int hoogsteBrightness = 0;
+
+  int TurnTries = 0;
   
     
     // Hebben we nieuwe bluetooth commandos gehad?
@@ -419,13 +422,17 @@ delay(500);
     Serial.println(analogRead(Irbakken[z]));
     readarray[z] = analogRead(Irbakken[z]);
 
+    Serial.print("distance: ");
+    Serial.println(getDistance());
+    
+
     if(readarray[z] > maxVal){
         maxVal = readarray[z];
         maxZ = z;
     }
   }
 
-    if (maxVal > 150){
+    if (maxVal > 120){
         //RIJ NAAR RICHTING Z
         // v,l,a,r
 if(maxZ == 0){
@@ -446,11 +453,18 @@ driveDirection(RELEASE);
     }else{
         // DRAAIEN
         driveDirection(TurnLeft);
-        delay(500);
+        delay(200);
         driveDirection(RELEASE);
+        TurnTries++;
     }
 
+if(TurnTries > 25){
+// check if something in front of us?
+// drive forward if not as we cant find shit
+// and retry everything
 
+TurnTries = 0;
+}
 
   
 
