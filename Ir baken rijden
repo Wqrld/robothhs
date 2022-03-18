@@ -5,7 +5,15 @@ float arrayA2[12];
 float arrayA5[12];
 float arrayA3[12];
 float arrayA4[12];
-
+int p;
+int q;
+int r;
+int s;
+int maximaleA=0;
+int maximaleB=0;
+int maximaleC=0;
+int maximaleD=0;
+int maximale;
 ////functie voor het grootste getal van de IR Baken//////////////////////////////////////////
 float GROOTSTE(){
 
