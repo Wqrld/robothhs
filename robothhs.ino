@@ -6,6 +6,11 @@
 // rechtsvoor m4
 // rechtsachter m3
 
+#define LA 2
+#define LV 1
+#define RV 4
+#define RA 3
+
 //////////////////
 // Docs voor AFMOTOR
 // https://codebender.cc/library/AFMotor#AFMotor.cpp
@@ -43,6 +48,11 @@
 #define FORWARD 1
 #define BACKWARD 2
 #define RELEASE 4
+
+#define LEFT 5
+#define RIGHT 6
+#define TurnLeft 7
+#define TurnRight 8
 
 // Motor frequency definitions (all 1khz, may be audible but best torque)
 #define MOTOR12_1KHZ _BV(CS22)              // divide by 64
@@ -173,8 +183,49 @@ void initMotor(uint8_t num, uint8_t freq) {
 
 // TODO evt aanpassen voor de omgedraaide motoren?
 
+
+void driveDirection(uint8_t cmd){
+    if(cmd == FORWARD || cmd == BACKWARD || cmd == RELEASE){
+        // We can just directly forward this to all our motors
+        drive(cmd, LV);
+        drive(cmd, LA);
+        drive(cmd, RV);
+        drive(cmd, RA);
+    }else if(cmd == LEFT){
+drive(FORWARD, LA);
+drive(FORWARD, RA);
+drive(BACKWARD, LV);
+drive(BACKWARD, RV);
+    }else if(cmd == RIGHT){
+drive(BACKWARD, LA);
+drive(BACKWARD, RA);
+drive(FORWARD, LV);
+drive(FORWARD, RV);
+    }else if(cmd == TurnRight){
+drive(FORWARD, LV);
+drive(FORWARD, LA);
+drive(BACKWARD, RV);
+drive(BACKWARD, RA);
+
+    }else if(cmd == TurnLeft){
+drive(BACKWARD, LV);
+drive(BACKWARD, LA);
+drive(FORWARD, RV);
+drive(FORWARD, RA);
+    }
+}
+
 void drive(uint8_t cmd, uint8_t motornum) {
   uint8_t a, b;
+  if((motornum == 2 || motornum == 3)){
+
+if(cmd == FORWARD){
+    cmd = BACKWARD;
+}else if(cmd == BACKWARD){
+    cmd = FORWARD;
+}
+
+  }
 
   //Decide which motor we should use
   switch (motornum) {
@@ -281,12 +332,8 @@ void setup() {
   // speed (duty cycle) up to 255, maar tot 128 veilig
   setSpeed(128); 
 
-  //Possible options: FORWARD, BACKWARD, RELEASE 
-  drive(FORWARD, 1); 
-  drive(BACKWARD, 2);
-  drive(BACKWARD, 3);
-  drive(FORWARD, 4);
-  
+  //Possible options: FORWARD, BACKWARD, RELEASE, LEFT, RIGHT, TurnLeft, TurnRight
+  driveDirection(TurnLeft);
   // Init serial output
   Serial.begin(9600);
   Serial.flush();
