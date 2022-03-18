@@ -67,7 +67,9 @@ Servo s;
 static uint8_t latch_state;
 
 // Poort indices voor de IR baken sensoren.
-int Irbakken[] = {A2, A5, A3, A4};
+int Irbakken[] = {A2, A3, A4, A5};
+//2,3,4,5
+//v,l,a,r
 
 
 /******************************************
@@ -386,8 +388,6 @@ void loop() {
   s.write(servoAngle);
   int hoogsteBrightness = 0;
   
-
-  while (true) {
     
     // Hebben we nieuwe bluetooth commandos gehad?
     checkBlueTooth();
@@ -396,33 +396,79 @@ void loop() {
     hoogsteBrightness = 0;
 
     // HCSR04 distance sensor afstand
-    Serial.println(getDistance());
+    //Serial.println(getDistance());
 
     // Draai, scan, etc
-    for (int i = 0; i <= 18; i++) {
-      s.write(10 * i);
-      int brightness = getIRBrightness();
-      if (brightness > hoogsteBrightness) {
-        hoogsteBrightness = brightness;
-        hoogsteAngle = 10 * i;
-      }
-    }
+    // for (int i = 0; i <= 18; i++) {
+    //   s.write(10 * i);
+    //   int brightness = getIRBrightness();
+    //   if (brightness > hoogsteBrightness) {
+    //     hoogsteBrightness = brightness;
+    //     hoogsteAngle = 10 * i;
+    //   }
+    // }
+
     
     //Print alle IR sensor readouts.
+  int readarray[5];
+  int maxVal = 0;
+  int maxZ = 0;
+driveDirection(RELEASE);
+delay(500);
     for(int z = 0; z < 4; z++){
     Serial.println(analogRead(Irbakken[z]));
+    readarray[z] = analogRead(Irbakken[z]);
+
+    if(readarray[z] > maxVal){
+        maxVal = readarray[z];
+        maxZ = z;
+    }
   }
+
+    if (maxVal > 150){
+        //RIJ NAAR RICHTING Z
+        // v,l,a,r
+if(maxZ == 0){
+    driveDirection(FORWARD);
+    delay(700);
+}else if(maxZ == 1){
+driveDirection(TurnLeft);
+delay(300);
+}else if(maxZ == 2){
+driveDirection(BACKWARD);
+delay(700);
+}else if(maxZ == 3){
+driveDirection(TurnRight);
+delay(300);
+}
+driveDirection(RELEASE);
+
+    }else{
+        // DRAAIEN
+        driveDirection(TurnLeft);
+        delay(500);
+        driveDirection(RELEASE);
+    }
+
+
+
   
+
+
+
+
+
+
   
     //optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
 
-    if (hoogsteBrightness > threshold) {
-      // We hebben nu de hoogste brightness en deze was meer dan de threshold, rijden
-      break;
-    }
+    // if (hoogsteBrightness > threshold) {
+    //   // We hebben nu de hoogste brightness en deze was meer dan de threshold, rijden
+    //   break;
+    // }
     // Als we hier aankomen dan konden we niks vinden, draaien en nog eens de hele dans doen
 
-  }
+  
 
   //todo: draai in de goede richting en rijd naar voren
   //rij_voren(500)
