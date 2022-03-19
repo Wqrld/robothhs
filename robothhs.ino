@@ -437,6 +437,13 @@ void loop() {
     // check if something in front of us?
     // drive forward if not as we cant find shit
     // and retry everything
+    
+    while(getDistance() > 30){
+      driveDirection(FORWARD);
+      delay(100);
+      driveDirection(RELEASE);
+      delay(100);
+    }
 
     TurnTries = 0;
   }
