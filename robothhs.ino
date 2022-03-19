@@ -68,7 +68,6 @@ static uint8_t latch_state;
 
 // Poort indices voor de IR baken sensoren.
 int Irbakken[] = {A2, A3, A4, A5};
-//2,3,4,5
 //v,l,a,r
 
 
@@ -139,9 +138,9 @@ inline void initPWM4(uint8_t freq) {
 
 // Set duty cycles
 void setSpeed(uint8_t s) {
-    // OCR = output compare register
-    // Je timer telt op tot 255, en gaat uit als de waarde van het OCR* register gehaald is.
-    // Hierdoor krijg je een duty cycle op een schaal van 0-255
+  // OCR = output compare register
+  // Je timer telt op tot 255, en gaat uit als de waarde van het OCR* register gehaald is.
+  // Hierdoor krijg je een duty cycle op een schaal van 0-255
 
   // motor 1, use PWM from timer2A on PB3 (Arduino pin #11)
   OCR2A = s;
@@ -157,6 +156,7 @@ void setSpeed(uint8_t s) {
 }
 
 
+// zet alle motoren op 0 en stel de timers in.
 void initMotor(uint8_t num, uint8_t freq) {
 
   switch (num) {
@@ -183,49 +183,47 @@ void initMotor(uint8_t num, uint8_t freq) {
   }
 }
 
-// TODO evt aanpassen voor de omgedraaide motoren?
-
-
-void driveDirection(uint8_t cmd){
-    if(cmd == FORWARD || cmd == BACKWARD || cmd == RELEASE){
-        // We can just directly forward this to all our motors
-        drive(cmd, LV);
-        drive(cmd, LA);
-        drive(cmd, RV);
-        drive(cmd, RA);
-    }else if(cmd == LEFT){
-drive(FORWARD, LA);
-drive(FORWARD, RA);
-drive(BACKWARD, LV);
-drive(BACKWARD, RV);
-    }else if(cmd == RIGHT){
-drive(BACKWARD, LA);
-drive(BACKWARD, RA);
-drive(FORWARD, LV);
-drive(FORWARD, RV);
-    }else if(cmd == TurnRight){
-drive(FORWARD, LV);
-drive(FORWARD, LA);
-drive(BACKWARD, RV);
-drive(BACKWARD, RA);
-
-    }else if(cmd == TurnLeft){
-drive(BACKWARD, LV);
-drive(BACKWARD, LA);
-drive(FORWARD, RV);
-drive(FORWARD, RA);
-    }
+// een bepaalde richting op rijden. CMD: FORWARD, BACKWARD, RELEASE, LEFT, RIGHT, TurnLeft, TurnRight
+void driveDirection(uint8_t cmd) {
+  if (cmd == FORWARD || cmd == BACKWARD || cmd == RELEASE) {
+    // We can just directly forward this to all our motors
+    drive(cmd, LV);
+    drive(cmd, LA);
+    drive(cmd, RV);
+    drive(cmd, RA);
+  } else if (cmd == LEFT) {
+    drive(FORWARD, LA);
+    drive(FORWARD, RA);
+    drive(BACKWARD, LV);
+    drive(BACKWARD, RV);
+  } else if (cmd == RIGHT) {
+    drive(BACKWARD, LA);
+    drive(BACKWARD, RA);
+    drive(FORWARD, LV);
+    drive(FORWARD, RV);
+  } else if (cmd == TurnRight) {
+    drive(FORWARD, LV);
+    drive(FORWARD, LA);
+    drive(BACKWARD, RV);
+    drive(BACKWARD, RA);
+  } else if (cmd == TurnLeft) {
+    drive(BACKWARD, LV);
+    drive(BACKWARD, LA);
+    drive(FORWARD, RV);
+    drive(FORWARD, RA);
+  }
 }
 
+//Stuur 1 motor aan. Cmd: FORWARD, BACKWARD, of RELEASE
 void drive(uint8_t cmd, uint8_t motornum) {
   uint8_t a, b;
-  if((motornum == 2 || motornum == 3)){
+  if ((motornum == 2 || motornum == 3)) {
 
-if(cmd == FORWARD){
-    cmd = BACKWARD;
-}else if(cmd == BACKWARD){
-    cmd = FORWARD;
-}
+    if (cmd == FORWARD) {
+      cmd = BACKWARD;
+    } else if (cmd == BACKWARD) {
+      cmd = FORWARD;
+    }
 
   }
 
@@ -262,17 +260,8 @@ if(cmd == FORWARD){
   }
 }
 
-void latch_tx_short_untested(void) {
-  // latch has to go low before transmitting
-  digitalWrite(MOTORLATCH, LOW);
-  // probably unneeded
-  digitalWrite(MOTORDATA, LOW);
-  // shift out the data, LSB first (untested, but matches the old latchtx)
-  shiftOut(MOTORDATA, MOTORCLK, LSBFIRST, latch_state);
-  // enable the latch again
-  digitalWrite(MOTORLATCH, HIGH);
-}
 
+// Verzend de latch status naar het shift register.
 void latch_tx(void) {
   uint8_t i;
 
@@ -301,9 +290,7 @@ void latch_tx(void) {
 }
 
 void setup() {
-  
-  
-  
+
   // pinmodes sensors
   pinMode(TriggerPin, OUTPUT);
   pinMode(EchoPin, INPUT);
@@ -319,20 +306,19 @@ void setup() {
   pinMode(MOTORCLK, OUTPUT);
 
   latch_state = 0; // reset all motor states
-
   latch_tx();
 
   // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
   //1khz geeft de beste efficiency
-  initMotor(1, MOTOR12_1KHZ); 
+  initMotor(1, MOTOR12_1KHZ);
   initMotor(2, MOTOR12_1KHZ);
-  initMotor(3, MOTOR34_1KHZ); 
-  initMotor(4, MOTOR34_1KHZ); 
-  
+  initMotor(3, MOTOR34_1KHZ);
+  initMotor(4, MOTOR34_1KHZ);
+
   // speed (duty cycle) up to 255, maar tot 128 veilig
-  setSpeed(128); 
+  setSpeed(128);
 
   //Possible options: FORWARD, BACKWARD, RELEASE, LEFT, RIGHT, TurnLeft, TurnRight
   driveDirection(TurnLeft);
@@ -349,37 +335,28 @@ unsigned long getDistance() {
   delayMicroseconds(10);
   digitalWrite (TriggerPin, LOW);
 
-//TODO add timeout, in microseconds
+  //TODO add timeout, in microseconds
   unsigned long duration = pulseIn(EchoPin, HIGH); // Find rtt duration
 
   unsigned long distance = duration * 0.034029 / 2; // Calculate distance
   return distance;
 }
 
-int getIRBrightness() {
-  // Todo implement
-
-  return 0;
-}
-
 // Run this from the main loop
 void checkBlueTooth() {
-  while(Serial.available() > 0){
-   
+  while (Serial.available() > 0) {
+
     char input = (char) Serial.read();
     // pagina 32 voor de benodigde opdrachten, vb:
-    
+
     // char, dus enkele aanhalingstekens
-    if(input == 'F') {
-     //rijnaarvoren(); 
+    if (input == 'F') {
+      //rijnaarvoren();
     }
-    
+
     // ....
-    
-    
-    
-    
-    
+
+
   }
 }
 
@@ -390,105 +367,78 @@ void loop() {
   int hoogsteBrightness = 0;
 
   int TurnTries = 0;
-  
-    
-    // Hebben we nieuwe bluetooth commandos gehad?
-    checkBlueTooth();
 
-    int hoogsteAngle = 0;
-    hoogsteBrightness = 0;
 
-    // HCSR04 distance sensor afstand
-    //Serial.println(getDistance());
+  // Hebben we nieuwe bluetooth commandos gehad?
+  checkBlueTooth();
 
-    // Draai, scan, etc
-    // for (int i = 0; i <= 18; i++) {
-    //   s.write(10 * i);
-    //   int brightness = getIRBrightness();
-    //   if (brightness > hoogsteBrightness) {
-    //     hoogsteBrightness = brightness;
-    //     hoogsteAngle = 10 * i;
-    //   }
-    // }
+  int hoogsteAngle = 0;
+  hoogsteBrightness = 0;
 
-    
-    //Print alle IR sensor readouts.
+  // HCSR04 distance sensor afstand
+  //Serial.println(getDistance());
+
+
+  // Hier kunnen we onze waarden in opslaan
   int readarray[5];
   int maxVal = 0;
   int maxZ = 0;
-driveDirection(RELEASE);
-delay(500);
-    for(int z = 0; z < 4; z++){
-    Serial.println(analogRead(Irbakken[z]));
+  
+  // Kort stoppen om te meten
+  driveDirection(RELEASE);
+  delay(500);
+  
+  for (int z = 0; z < 4; z++) {
+    // doe een lezing en sla deze op
     readarray[z] = analogRead(Irbakken[z]);
+    Serial.println(readarray[z]);
 
-    Serial.print("distance: ");
+    // Is dit de hoogste waarde?
+    if (readarray[z] > maxVal) {
+      maxVal = readarray[z];
+      maxZ = z;
+    }
+    
+    // Afstand meten, nog niet in gebruik op het moment
+    Serial.print("HCSR04 distance: ");
     Serial.println(getDistance());
     
-
-    if(readarray[z] > maxVal){
-        maxVal = readarray[z];
-        maxZ = z;
-    }
   }
 
-    if (maxVal > 120){
-        //RIJ NAAR RICHTING Z
-        // v,l,a,r
-if(maxZ == 0){
-    driveDirection(FORWARD);
-    delay(700);
-}else if(maxZ == 1){
-driveDirection(TurnLeft);
-delay(300);
-}else if(maxZ == 2){
-driveDirection(BACKWARD);
-delay(700);
-}else if(maxZ == 3){
-driveDirection(TurnRight);
-delay(300);
-}
-driveDirection(RELEASE);
-
-    }else{
-        // DRAAIEN
-        driveDirection(TurnLeft);
-        delay(200);
-        driveDirection(RELEASE);
-        TurnTries++;
+  // Is onze hoogste meting meer dan de threshold van 120?
+  // Heeft flink wat tuning nodig, de range stelt weinig voor.
+  if (maxVal > 120) {
+    //RIJ NAAR RICHTING Z
+    // v,l,a,r
+    if (maxZ == 0) {
+      driveDirection(FORWARD);
+      delay(700);
+    } else if (maxZ == 1) {
+      driveDirection(TurnLeft);
+      delay(300);
+    } else if (maxZ == 2) {
+      driveDirection(BACKWARD);
+      delay(700);
+    } else if (maxZ == 3) {
+      driveDirection(TurnRight);
+      delay(300);
     }
+    driveDirection(RELEASE);
 
-if(TurnTries > 25){
-// check if something in front of us?
-// drive forward if not as we cant find shit
-// and retry everything
+  } else {
+    // Niks gevonden, draaien en nog eens proberen.
+    driveDirection(TurnLeft);
+    delay(200);
+    driveDirection(RELEASE);
+    TurnTries++;
+  }
 
-TurnTries = 0;
-}
+  if (TurnTries > 25) {
+    // check if something in front of us?
+    // drive forward if not as we cant find shit
+    // and retry everything
 
-  
-
-
-
-
-
-
-  
-    //optimization: we kunnen al exiten voor we de hele loop door zijn als het weer minder wordt:
-
-    // if (hoogsteBrightness > threshold) {
-    //   // We hebben nu de hoogste brightness en deze was meer dan de threshold, rijden
-    //   break;
-    // }
-    // Als we hier aankomen dan konden we niks vinden, draaien en nog eens de hele dans doen
-
-  
-
-  //todo: draai in de goede richting en rijd naar voren
-  //rij_voren(500)
-
-
-
-  // we komen steeds dichterbij, herhaal de loop tot we er zijn.
+    TurnTries = 0;
+  }
 
 }
