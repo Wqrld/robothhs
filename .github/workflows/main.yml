@@ -1,0 +1,13 @@
+name: CompileTest
+on: push
+jobs:
+  build:
+    name: Test compiling examples for UNO
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Compile all examples
+      uses: ArminJo/arduino-test-compile@v3
+      with:
+        required-libraries: Servo
