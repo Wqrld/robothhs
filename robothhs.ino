@@ -23,7 +23,6 @@
 // Sensors
 #define EchoPin A0 // are these defined correctly? probably want to switch around
 #define TriggerPin A1
-#define ledSensor 9 // todo: setup and probably change port
 
 // threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
 #define threshold 50
@@ -193,12 +192,12 @@ void driveDirection(uint8_t cmd) {
     drive(cmd, RA);
   } else if (cmd == LEFT) {
     drive(FORWARD, LA);
-    drive(FORWARD, RA);
-    drive(BACKWARD, LV);
-    drive(BACKWARD, RV);
-  } else if (cmd == RIGHT) {
-    drive(BACKWARD, LA);
     drive(BACKWARD, RA);
+    drive(BACKWARD, LV);
+    drive(FORWARD, RV);
+  } else if (cmd == RIGHT) {
+    drive(FORWARD, LA);
+    drive(FORWARD, RA);
     drive(FORWARD, LV);
     drive(FORWARD, RV);
   } else if (cmd == TurnRight) {
@@ -294,7 +293,6 @@ void setup() {
   // pinmodes sensors
   pinMode(TriggerPin, OUTPUT);
   pinMode(EchoPin, INPUT);
-  pinMode(ledSensor, INPUT);
 
   // Servo
   s.attach(servoPin);
@@ -359,14 +357,14 @@ void checkBlueTooth() {
 
   }
 }
-
+  int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
-  int servoAngle = 0;
+  int servoAngle = 90;
   s.write(servoAngle);
   int hoogsteBrightness = 0;
 
-  int TurnTries = 0;
+
 
 
   // Hebben we nieuwe bluetooth commandos gehad?
@@ -383,31 +381,44 @@ void loop() {
   int readarray[5];
   int maxVal = 0;
   int maxZ = 0;
+  int secndmaxVal = 0;
   
   // Kort stoppen om te meten
   driveDirection(RELEASE);
   delay(500);
+
+  /*
+   * Als hoger dan vorige hoogste
+   * 2ndhoogste = vorige hoogste
+   * 
+   * 
+   */
   
   for (int z = 0; z < 4; z++) {
     // doe een lezing en sla deze op
     readarray[z] = analogRead(Irbakken[z]);
+    Serial.print(z);
+    Serial.print("-");
     Serial.println(readarray[z]);
 
     // Is dit de hoogste waarde?
-    if (readarray[z] > maxVal) {
+    if (z != 1 && readarray[z] > maxVal) {
+
+      secndmaxVal = maxVal;
       maxVal = readarray[z];
       maxZ = z;
     }
-    
-    // Afstand meten, nog niet in gebruik op het moment
-    Serial.print("HCSR04 distance: ");
-    Serial.println(getDistance());
+   
     
   }
 
+      // Afstand meten, nog niet in gebruik op het moment
+    Serial.print("HCSR04 distance: ");
+    Serial.println(getDistance());
+
   // Is onze hoogste meting meer dan de threshold van 120?
   // Heeft flink wat tuning nodig, de range stelt weinig voor.
-  if (maxVal > 120) {
+  if (maxVal > secndmaxVal + 15) {
     //RIJ NAAR RICHTING Z
     // v,l,a,r
     if (maxZ == 0) {
@@ -428,21 +439,23 @@ void loop() {
   } else {
     // Niks gevonden, draaien en nog eens proberen.
     driveDirection(TurnLeft);
-    delay(200);
+    delay(150);
     driveDirection(RELEASE);
     TurnTries++;
   }
 
-  if (TurnTries > 25) {
+  if (TurnTries > 10) {
     // check if something in front of us?
     // drive forward if not as we cant find shit
     // and retry everything
-    
-    while(getDistance() > 30){
+
+    int counter = 0;
+    while(getDistance() > 10 && counter < 5){
       driveDirection(FORWARD);
-      delay(100);
+      delay(200);
       driveDirection(RELEASE);
       delay(100);
+      counter++;
     }
 
     TurnTries = 0;
