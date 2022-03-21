@@ -67,7 +67,11 @@ Servo s;
 static uint8_t latch_state;
 
 // Poort indices voor de IR baken sensoren.
-int Irbakken[] = {A2, A3, A4, A5};
+int arrayvoor[] = {A2};
+int arraylinks[] = {A3};
+int arrayachter[] = {A4};
+int arrayrechts[] = {A5};
+
 //2,3,4,5
 //v,l,a,r
 
@@ -370,10 +374,10 @@ return (maximale);
 /////  12 stappen van 7graden om alles rondom uit telezen (waar de IR baken staat)///////////////////
 void Draaien(){
     for(int G; G>=12; G++){
-    ArrayA2[G] = analogRead(A2);
-    ArrayA5[G] = analogRead(A5);
-    ArrayA3[G] = analogRead(A3);
-    ArrayA4[G] = analogRead(A4);    
+    ArrayA2[G] = analogRead(arrayvoor[G]);
+    ArrayA5[G] = analogRead(arrayrechts[G]);
+    ArrayA3[G] = analogRead(arraylinks[G]);
+    ArrayA4[G] = analogRead(arrayachter[G]);    
     
     drive(FORWARD, 1);
     drive(FORWARD, 2);
