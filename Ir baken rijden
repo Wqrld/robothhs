@@ -113,7 +113,7 @@ Void positioneren(){
         break;
         }
     } 
-///////////////////////hier moet die gaan rijden naar de kant dat 1 van de max het grootste is//////////
+hier moet die gaan rijden naar de kant dat 1 van de max het grootste is//////////
 
   if(GROOTSTE == maximaleA){ //voren
   driveDirection(FORWARD);
