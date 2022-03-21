@@ -383,10 +383,10 @@ void loop() {
 
 
   // Hier kunnen we onze waarden in opslaan
-int readarrayvoor[5];
-int readarraylinks[5];
-int readarrayachter[5];
-int readarrayrechts[5];
+int readarrayvoor[12];
+int readarraylinks[12];
+int readarrayachter[12];
+int readarrayrechts[12];
 int maxnummerarrayV = 0;
 int maxnummerarrayL = 0;
 int maxnummerarrayA = 0;
@@ -398,12 +398,12 @@ int maximaleR=0;
 driveDirection(RELEASE);
 delay(500);
 
-for (int z = 0; z < 4; z++) {
+for (int z = 0; z < 12; z++) {
     // doe een lezing en sla deze op
-readarrayvoor[5] = analogRead(arrayvoor[z]);
-readarraylinks[5] = analogRead(arraylinks[z]);
-readarrayachter[5] = analogRead(arrayachter[z]);
-readarrayrechts[5] = analogRead(arrayrechts[z]);
+readarrayvoor[12] = analogRead(arrayvoor[z]);
+readarraylinks[12] = analogRead(arraylinks[z]);
+readarrayachter[12] = analogRead(arrayachter[z]);
+readarrayrechts[12] = analogRead(arrayrechts[z]);
 Serial.println(readarrayvoor[z]);
 Serial.println(readarraylinks[z]);
 Serial.println(readarrayachter[z]);  
