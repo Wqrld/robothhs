@@ -67,10 +67,10 @@ Servo s;
 static uint8_t latch_state;
 
 // Poort indices voor de IR baken sensoren.
-int arrayvoor[] = {A2};
-int arraylinks[] = {A3};
-int arrayachter[] = {A4};
-int arrayrechts[] = {A5};
+float arrayvoor[] = {A2};
+float arraylinks[] = {A3};
+float arrayachter[] = {A4};
+float arrayrechts[] = {A5};
 
 //2,3,4,5
 //v,l,a,r
