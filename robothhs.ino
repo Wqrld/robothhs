@@ -402,7 +402,7 @@ void loop() {
     Serial.println(readarray[z]);
 
     // Is dit de hoogste waarde?
-    if (z != 1 && readarray[z] > maxVal) {
+    if (readarray[z] > maxVal) {
 
       secndmaxVal = maxVal;
       maxVal = readarray[z];
