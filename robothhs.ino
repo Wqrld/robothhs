@@ -385,7 +385,7 @@ void loop() {
   
   // Kort stoppen om te meten
   driveDirection(RELEASE);
-  delay(500);
+  delay(100); // Genoeg om zeker te meten, maar toch snel
 
   /*
    * Als hoger dan vorige hoogste
@@ -413,8 +413,8 @@ void loop() {
   }
 
       // Afstand meten, nog niet in gebruik op het moment
-    Serial.print("HCSR04 distance: ");
-    Serial.println(getDistance());
+   // Serial.print("HCSR04 distance: ");
+    //Serial.println(getDistance());
 
   // Is onze hoogste meting meer dan de threshold van 120?
   // Heeft flink wat tuning nodig, de range stelt weinig voor.
@@ -454,7 +454,7 @@ void loop() {
       driveDirection(FORWARD);
       delay(200);
       driveDirection(RELEASE);
-      delay(100);
+      delay(50); // kort stoppen zodat we stilstaan voor de afstand meting
       counter++;
     }
 
