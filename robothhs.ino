@@ -6,6 +6,8 @@
 // rechtsvoor m4
 // rechtsachter m3
 
+bool manual = 0;
+
 #define LA 2
 #define LV 1
 #define RV 4
@@ -340,7 +342,7 @@ unsigned long getDistance() {
   return distance;
 }
 
-// Run this from the main loop
+// Run this from the main loop, HHS-11
 void checkBlueTooth() {
   while (Serial.available() > 0) {
 
@@ -348,9 +350,35 @@ void checkBlueTooth() {
     // pagina 32 voor de benodigde opdrachten, vb:
 
     // char, dus enkele aanhalingstekens
-    if (input == 'F') {
-      //rijnaarvoren();
+    switch(input){
+      case 'F':
+        driveDirection(FORWARD);
+        break;
+      case 'B':
+        driveDirection(BACKWARD);
+        break;
+      case 'L':
+        driveDirection(TurnLeft);
+        break;
+      case 'R':
+        driveDirection(TurnRight);
+        break;
+      case 'S':
+        driveDirection(RELEASE);
+        break;
+      case '+':
+        break;
+      case '-':
+        break;
+      case 'A':
+        manual = 0;
+        break;
+      case 'C':
+        manual = 1;
+        break;
+      
     }
+      
 
     // ....
 
@@ -369,6 +397,9 @@ void loop() {
 
   // Hebben we nieuwe bluetooth commandos gehad?
   checkBlueTooth();
+  if(manual){
+    return; // If manual, don't run through the algorithm.
+  }
 
   int hoogsteAngle = 0;
   hoogsteBrightness = 0;
@@ -385,7 +416,7 @@ void loop() {
   
   // Kort stoppen om te meten
   driveDirection(RELEASE);
-  delay(500);
+  delay(100); // Genoeg om zeker te meten, maar toch snel
 
   /*
    * Als hoger dan vorige hoogste
@@ -413,8 +444,8 @@ void loop() {
   }
 
       // Afstand meten, nog niet in gebruik op het moment
-    Serial.print("HCSR04 distance: ");
-    Serial.println(getDistance());
+   // Serial.print("HCSR04 distance: ");
+    //Serial.println(getDistance());
 
   // Is onze hoogste meting meer dan de threshold van 120?
   // Heeft flink wat tuning nodig, de range stelt weinig voor.
@@ -454,7 +485,7 @@ void loop() {
       driveDirection(FORWARD);
       delay(200);
       driveDirection(RELEASE);
-      delay(100);
+      delay(50); // kort stoppen zodat we stilstaan voor de afstand meting
       counter++;
     }
 
