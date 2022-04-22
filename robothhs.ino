@@ -388,10 +388,144 @@ void checkBlueTooth() {
   int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
-  int servoAngle = 90;
-  s.write(servoAngle);
-  int hoogsteBrightness = 0;
 
+  int hoogsteBrightness = 0;
+int servoAnglelinks = 15;
+  int servoAngleRechtdoor = 90;
+  int servoAngleRechts = 165;
+  int readarray[5];
+  int maxVal = 0;
+  int maxZ = 0;
+  int SecondmaxZ = 0;
+  int secndmaxVal = 0;
+  //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
+ if (distance < 10 && SecondmaxZ == 1 && maxZ == 0) {
+   driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAnglelinks);
+   if (distance < 10) {
+    s.write(servoAngleRechts);
+    if ( distance > 10 ) {
+        //Als links een obstakel is en rechts niet dan gaan we naar rechts staan, dan voren, dan links staan, dan rechtdoor
+  
+   driveDirection(TurnRight);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(TurnLeft);
+   delay(150);
+    driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   } 
+   //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links
+   else {
+     driveDirection(BACKWARD);
+     delay(150);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(TurnLeft);
+     delay(100);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(FORWARD);
+     delay(100);
+     driveDirection(RELEASE);
+     delay(100);
+   }
+    } 
+    //als afstand links groter is dan 10 dan rijden we naar links en dan rijden we naar rechts om obstakel te vermijden
+    else {
+   driveDirection(TurnLeft);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(TurnRight);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   }
+ }
+//als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
+ if (distance < 10 && SecondmaxZ == 3 && maxZ == 0) {
+  driveDirection(RELEASE);
+  delay(100);
+  s.write(servoAngleRechts);
+  if (distance < 10) {
+    s.write(servoAnglelinks);
+    if ( distance > 10 ) {
+        //Als rechts een obstakel is en links niet dan gaan we naar links staan, dan voren, dan rechts staan, dan rechtdoor
+      
+   driveDirection(TurnLeft);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(TurnRight);
+   delay(150);
+    driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   } 
+   //als de afstand van linkerkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar rechts
+   else {
+     driveDirection(BACKWARD);
+     delay(150);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(TurnRight);
+     delay(100);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(FORWARD);
+     delay(100);
+     driveDirection(RELEASE);
+     delay(100);
+   }
+    } 
+    //als de afstand rechts groter is dan 10 dan rijden we naar rechts
+  else{
+   driveDirection(TurnRight);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(TurnLeft);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   }
+ }
 
 
 
