@@ -547,6 +547,7 @@ int servoAnglelinks = 15;
   int maxVal = 0;
   int maxZ = 0;
   int secndmaxVal = 0;
+  int nieuw = 0;
   
   // Kort stoppen om te meten
   driveDirection(RELEASE);
