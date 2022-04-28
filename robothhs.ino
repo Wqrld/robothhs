@@ -573,7 +573,13 @@ int servoAnglelinks = 15;
       maxVal = readarray[z];
       maxZ = z;
     }
-   
+    if (readarray [z] < maxVal){
+      for (int SK= 0; SK < 4; SK++){ 
+        if (nieuw < readarray[z] && nieuw != maxVal){
+        nieuw = readarry[z]}
+           }
+        }
+      }
     
   }
 
