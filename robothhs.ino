@@ -547,7 +547,7 @@ int servoAnglelinks = 15;
   int maxVal = 0;
   int maxZ = 0;
   int secndmaxVal = 0;
-  int nieuw = 0;
+  
   
   // Kort stoppen om te meten
   driveDirection(RELEASE);
@@ -574,12 +574,12 @@ int servoAnglelinks = 15;
       maxVal = readarray[z];
       maxZ = z;
     }
+    
     if (readarray [z] < maxVal){
-      for (int SK= 0; SK < 4; SK++){ 
-        if (nieuw < readarray[z] && nieuw != maxVal){
-        nieuw = readarry[z]}
-           }
-        }
+        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
+        SecondmaxZ = readarry[z];
+        Serial.print(SecondmaxZ);
+              }
       }
     
   }
