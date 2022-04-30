@@ -63,6 +63,8 @@ bool manual = 0;
 #define servoPin 10
 Servo s;
 
+//Afstand van 1 blok
+#define afstandblok 900
 
 // Stored the state of the shift register
 static uint8_t latch_state;
@@ -399,13 +401,13 @@ int servoAnglelinks = 15;
   int SecondmaxZ = 0;
   int secndmaxVal = 0;
   //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
- if (distance < 10 && SecondmaxZ == 1 && maxZ == 0) {
+ if (getDistance < 10 && SecondmaxZ == 1 && maxZ == 0) {
    driveDirection(RELEASE);
    delay(100);
    s.write(servoAnglelinks);
-   if (distance < 10) {
+   if (getDistance < 10) {
     s.write(servoAngleRechts);
-    if ( distance > 10 ) {
+    if (getDistance > 10 ) {
         //Als links een obstakel is en rechts niet dan gaan we naar rechts staan, dan voren, dan links staan, dan rechtdoor
   
    driveDirection(TurnRight);
@@ -414,18 +416,40 @@ int servoAnglelinks = 15;
    delay(100);
    s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
-   delay(150);
+   delay(afstandblok);
    driveDirection(RELEASE);
    delay(100);
-   driveDirection(TurnLeft);
+
+   //controleren of we naar links kunnen
+   if(getDistance < 10) {
+    s.write(servoAnglelinks);
+    if(getDistance > 10){
+         driveDirection(TurnLeft);
    delay(150);
     driveDirection(RELEASE);
    delay(100);
+   s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
    delay(150);
    driveDirection(RELEASE);
    delay(100);
-   } 
+    }
+    else{
+      s.write(servoAngleRechts);
+      if(getDistance > 10){
+        driveDirection(TurnRight);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+        s.write(servoAngleRechtdoor);
+        driveDirection(FORWARD);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+      }
+    }
+   }
+
    //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links
    else {
      driveDirection(BACKWARD);
@@ -452,24 +476,46 @@ int servoAnglelinks = 15;
    delay(150);
    driveDirection(RELEASE);
    delay(100);
-   driveDirection(TurnRight);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
-   driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+
+  //we kijken of we naar rechts kunnen
+   if(getDistance < 10){
+    s.write(servoAngleRechts);
+    if(getDistance > 10){
+       driveDirection(TurnRight);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+     }
+     else{
+      s.write(servoAnglelinks);
+      if(getDistance > 10){
+       driveDirection(TurnLeft);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+      }
+     }
+    }
    }
  }
 //als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
- if (distance < 10 && SecondmaxZ == 3 && maxZ == 0) {
+ if (getDistance < 10 && SecondmaxZ == 3 && maxZ == 0) {
   driveDirection(RELEASE);
   delay(100);
   s.write(servoAngleRechts);
-  if (distance < 10) {
+  if (getDistance < 10) {
     s.write(servoAnglelinks);
-    if ( distance > 10 ) {
+    if (getDistance > 10 ) {
         //Als rechts een obstakel is en links niet dan gaan we naar links staan, dan voren, dan rechts staan, dan rechtdoor
       
    driveDirection(TurnLeft);
@@ -481,14 +527,37 @@ int servoAnglelinks = 15;
    delay(150);
    driveDirection(RELEASE);
    delay(100);
-   driveDirection(TurnRight);
+   
+   //controleren of we naar rechts kunnen
+   if(getDistance < 10) {
+    s.write(servoAngleRechts);
+    if(getDistance > 10){
+         driveDirection(TurnRight);
    delay(150);
     driveDirection(RELEASE);
    delay(100);
+   s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
    delay(150);
    driveDirection(RELEASE);
    delay(100);
+    }
+    else{
+      s.write(servoAnglelinks);
+      if(getDistance > 10){
+        driveDirection(TurnLeft);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+        s.write(servoAngleRechtdoor);
+        driveDirection(FORWARD);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+        
+      }
+    }
+   }
    } 
    //als de afstand van linkerkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar rechts
    else {
@@ -506,6 +575,7 @@ int servoAnglelinks = 15;
      delay(100);
    }
     } 
+    
     //als de afstand rechts groter is dan 10 dan rijden we naar rechts
   else{
    driveDirection(TurnRight);
@@ -577,7 +647,7 @@ int servoAnglelinks = 15;
     
     if (readarray [z] < maxVal){
         if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
-        SecondmaxZ = readarry[z];
+        SecondmaxZ = readarray[z];
         Serial.print(SecondmaxZ);
               }
       }
@@ -617,7 +687,7 @@ int servoAnglelinks = 15;
   }
 
   if (TurnTries > 10) {
-    // check if something in front of us?
+        // check if something in front of us?
     // drive forward if not as we cant find shit
     // and retry everything
 
@@ -630,7 +700,7 @@ int servoAnglelinks = 15;
       counter++;
     }
 
-    TurnTries = 0;
+    TurnTries = 0; 
   }
+  
 
-}
