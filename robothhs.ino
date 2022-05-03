@@ -421,8 +421,8 @@ int servoAnglelinks = 15;
     
     if (readarray[z] < maxVal && readarray[z] !=maxVal){
       if(readarray[z] > SecondmaxZ){
-      SecondmaxZ = readarray[z]
-      Kantsec = z
+      SecondmaxZ = readarray[z];
+      Kantsec = z;
       }
    }
     
@@ -650,6 +650,7 @@ delay(1000); // luc
 
   int hoogsteAngle = 0;
   hoogsteBrightness = 0;
+}
 
   // HCSR04 distance sensor afstand
   //Serial.println(getDistance());
