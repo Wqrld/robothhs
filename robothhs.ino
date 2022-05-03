@@ -392,9 +392,9 @@ void loop() {
   // Reset alle info voor een nieuwe run
 int H = getDistance();
   int hoogsteBrightness = 0;
-int servoAnglelinks = 15;
+int servoAnglelinks = 55;
   int servoAngleRechtdoor = 90;
-  int servoAngleRechts = 165;
+  int servoAngleRechts = 125;
   int readarray[5];
   int maxVal = 0;
   int maxZ = 0;
@@ -404,6 +404,9 @@ int servoAnglelinks = 15;
 
 
   for (int z = 0; z < 4; z++) {
+    if(z == 1){
+      continue;
+    }
     // doe een lezing en sla deze op
     readarray[z] = analogRead(Irbakken[z]);
    // Serial.print(z);
@@ -414,23 +417,32 @@ int servoAnglelinks = 15;
     if (readarray[z] > maxVal) {
 
       secndmaxVal = maxVal;
+      SecondmaxZ = maxZ;
       maxVal = readarray[z];
       maxZ = z;
     }
     
-    if (readarray [z] < maxVal){
-        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
-        SecondmaxZ = z;
-        Serial.print(SecondmaxZ);
-              }
-      }
+//    if (readarray [z] < maxVal){
+//        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
+//        SecondmaxZ = z;
+//       // Serial.print(SecondmaxZ);
+//              }
+//      }
     
   }
-delay(1000);
-Serial.println(getDistance());
-delay(1000); // luc
-  
- if ((H < 20 || H > 5000) && SecondmaxZ == 1 && maxZ == 0) {
+
+delay(100);
+   Serial.print("HCSR04 distance: ");
+    Serial.println(getDistance());
+    Serial.print("secondmaxZ; ");
+    Serial.println(SecondmaxZ);
+    Serial.print("maxZ: ");
+    Serial.println(maxZ);
+   
+delay(100); // luc
+  if (maxZ == 0) {
+  driveDirection(FORWARD);
+ if (H < 20 || H > 5000) {
    driveDirection(RELEASE);
    s.write(servoAnglelinks);
       delay(100);
@@ -448,56 +460,43 @@ delay(1000); // luc
    delay(100);
    s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
-   delay(afstandblok);
-   driveDirection(RELEASE);
-   delay(100);
-
+   
    //controleren of we naar links kunnen
    if((H < 20 || H > 5000)) {
     s.write(servoAnglelinks);
      delay(100); // luc
-    if(getDistance() > 10){
+    if(getDistance() > 20){
          driveDirection(TurnLeft);
    delay(150);
     driveDirection(RELEASE);
    delay(100);
    s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+  
     }
     else{
       s.write(servoAngleRechts);
          delay(100);
-      if(getDistance() > 10){
+      if(getDistance() > 20){
         driveDirection(TurnRight);
         delay(150);
         driveDirection(RELEASE);
         delay(100);
         s.write(servoAngleRechtdoor);
         driveDirection(FORWARD);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
+      
       }
     }
    }
 
-   //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links
+   //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links (ons code nu voor achter gaan) pog
    else {
-     driveDirection(BACKWARD);
-     delay(150);
-     driveDirection(RELEASE);
-     delay(100);
      driveDirection(TurnLeft);
-     delay(100);
+     delay(600);
      driveDirection(RELEASE);
      delay(100);
      driveDirection(FORWARD);
-     delay(100);
-     driveDirection(RELEASE);
-     delay(100);
+     
    }
     } 
     //als afstand links groter is dan 10 dan rijden we naar links en dan rijden we naar rechts om obstakel te vermijden
@@ -507,51 +506,255 @@ delay(1000); // luc
    driveDirection(RELEASE);
    delay(100);
    driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+  
 
   //we kijken of we naar rechts kunnen
    if(( H < 20 || H > 5000)){
     s.write(servoAngleRechts);
        delay(100);
-    if(getDistance() > 10){
+    if(getDistance() > 20){
        driveDirection(TurnRight);
        delay(150);
        driveDirection(RELEASE);
        delay(100);
        s.write(servoAngleRechtdoor);
        driveDirection(FORWARD);
-       delay(150);
-       driveDirection(RELEASE);
-       delay(100);
+      
      }
      else{
       s.write(servoAnglelinks);
          delay(100);
-      if(getDistance() > 10){
+      if(getDistance() > 20){
        driveDirection(TurnLeft);
        delay(150);
        driveDirection(RELEASE);
        delay(100);
        s.write(servoAngleRechtdoor);
        driveDirection(FORWARD);
-       delay(150);
-       driveDirection(RELEASE);
-       delay(100);
+       
       }
      }
     }
    }
  }
  }
+  }
+ //nu code voor rechts 3
+ if (maxZ == 3) {
+  driveDirection(TurnRight);
+  delay(300);
+  driveDirection(RELEASE);
+  driveDirection(FORWARD);
+ if (H < 20 || H > 5000 ) {
+  driveDirection(TurnRight);
+  delay(200);
+   driveDirection(RELEASE);
+   s.write(servoAnglelinks);
+      delay(100);
+      int SS=getDistance();
+   if ((SS < 20 || SS > 5000)) {
+    delay(100); // luc
+    s.write(servoAngleRechts);
+    if (getDistance() > 10 ) {
+      
+        //Als links een obstakel is en rechts niet dan gaan we naar rechts staan, dan voren, dan links staan, dan rechtdoor
+  
+   driveDirection(TurnRight);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+  
+   //controleren of we naar links kunnen
+   if((H < 20 || H > 5000)) {
+    s.write(servoAnglelinks);
+     delay(100); // luc
+    if(getDistance() > 20){
+         driveDirection(TurnLeft);
+   delay(150);
+    driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+   
+    }
+    else{
+      s.write(servoAngleRechts);
+         delay(100);
+      if(getDistance() > 20){
+        driveDirection(TurnRight);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+        s.write(servoAngleRechtdoor);
+        driveDirection(FORWARD);
+       
+      }
+    }
+   }
+
+   //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links (ons code voor nu)
+   else {
+     driveDirection(TurnLeft);
+     delay(600);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(FORWARD);
+    
+   }
+    } 
+    //als afstand links groter is dan 10 dan rijden we naar links en dan rijden we naar rechts om obstakel te vermijden
+    else {
+   driveDirection(TurnLeft);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   
+  //we kijken of we naar rechts kunnen
+   if(( H < 20 || H > 5000)){
+    s.write(servoAngleRechts);
+       delay(100);
+    if(getDistance() > 20){
+       driveDirection(TurnRight);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+      
+     }
+     else{
+      s.write(servoAnglelinks);
+         delay(100);
+      if(getDistance() > 20){
+       driveDirection(TurnLeft);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+      
+      }
+     }
+    }
+   }
+ }
+ }
+ }
+ //nu code voor achter 2
+ if (maxZ == 2) {
+  driveDirection(TurnLeft);
+  delay(600);
+  driveDirection(RELEASE);
+  driveDirection(FORWARD);
+ if (H < 20 || H > 5000) {
+  driveDirection(TurnRight);
+  delay(400);
+   driveDirection(RELEASE);
+   s.write(servoAnglelinks);
+      delay(100);
+      int SS=getDistance();
+   if ((SS < 20 || SS > 5000)) {
+    delay(100); // luc
+    s.write(servoAngleRechts);
+    if (getDistance() > 10 ) {
+      
+        //Als links een obstakel is en rechts niet dan gaan we naar rechts staan, dan voren, dan links staan, dan rechtdoor
+  
+   driveDirection(TurnRight);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+   
+
+   //controleren of we naar links kunnen
+   if((H < 20 || H > 5000)) {
+    s.write(servoAnglelinks);
+     delay(100); // luc
+    if(getDistance() > 20){
+         driveDirection(TurnLeft);
+   delay(150);
+    driveDirection(RELEASE);
+   delay(100);
+   s.write(servoAngleRechtdoor);
+   driveDirection(FORWARD);
+ 
+    }
+    else{
+      s.write(servoAngleRechts);
+         delay(100);
+      if(getDistance() > 20){
+        driveDirection(TurnRight);
+        delay(150);
+        driveDirection(RELEASE);
+        delay(100);
+        s.write(servoAngleRechtdoor);
+        driveDirection(FORWARD);
+        
+      }
+    }
+   }
+
+   //als de afstand van rechterkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar links
+   else {
+    driveDirection(TurnLeft);
+     delay(600);
+     driveDirection(RELEASE);
+     delay(100);
+     driveDirection(FORWARD);
+   }
+    } 
+    //als afstand links groter is dan 10 dan rijden we naar links en dan rijden we naar rechts om obstakel te vermijden
+    else {
+   driveDirection(TurnLeft);
+   delay(150);
+   driveDirection(RELEASE);
+   delay(100);
+   driveDirection(FORWARD);
+   
+
+  //we kijken of we naar rechts kunnen
+   if(( H < 20 || H > 5000)){
+    s.write(servoAngleRechts);
+       delay(100);
+    if(getDistance() > 20){
+       driveDirection(TurnRight);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+       
+     }
+     else{
+      s.write(servoAnglelinks);
+         delay(100);
+      if(getDistance() > 20){
+       driveDirection(TurnLeft);
+       delay(150);
+       driveDirection(RELEASE);
+       delay(100);
+       s.write(servoAngleRechtdoor);
+       driveDirection(FORWARD);
+       
+      }
+     }
+    }
+   }
+ }
+ }
+ }
 //als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
- if (( H < 20 || H > 5000) && SecondmaxZ == 3 && maxZ == 0) {
+ if (( H < 20 || H > 5000) && maxZ == 0) {
   driveDirection(RELEASE);
   delay(100);
   s.write(servoAngleRechts);
      delay(100);
-  if (getDistance()< 10) {
+  if (getDistance() < 20) {
     s.write(servoAnglelinks);
        delay(100);
     if (getDistance() > 10 ) {
@@ -563,38 +766,32 @@ delay(1000); // luc
    delay(100);
    s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+ 
    
    //controleren of we naar rechts kunnen
    if((H < 20 || H > 5000)) {
     s.write(servoAngleRechts);
        delay(100);
-    if(getDistance() > 10){
+    if(getDistance() > 20){
          driveDirection(TurnRight);
    delay(150);
     driveDirection(RELEASE);
    delay(100);
    s.write(servoAngleRechtdoor);
    driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+  
     }
     else{
       s.write(servoAnglelinks);
          delay(100);
-      if(getDistance() > 10){
+      if(getDistance() > 20){
         driveDirection(TurnLeft);
         delay(150);
         driveDirection(RELEASE);
         delay(100);
         s.write(servoAngleRechtdoor);
         driveDirection(FORWARD);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
+        
         
       }
     }
@@ -602,25 +799,19 @@ delay(1000); // luc
    } 
    //als de afstand van linkerkant ook kleiner is dan 10, dan rijdt het wagen even naar achter en gaat dan naar rechts
    else {
-     driveDirection(BACKWARD);
-     delay(150);
-     driveDirection(RELEASE);
-     delay(100);
-     driveDirection(TurnRight);
-     delay(100);
+     driveDirection(TurnLeft);
+     delay(600);
      driveDirection(RELEASE);
      delay(100);
      driveDirection(FORWARD);
-     delay(100);
-     driveDirection(RELEASE);
-     delay(100);
+   
    }
     } 
     
     //als de afstand rechts groter is dan 10 dan rijden we naar rechts
   else{
    driveDirection(TurnRight);
-   delay(150);
+   delay(300);
    driveDirection(RELEASE);
    delay(100);
    driveDirection(FORWARD);
@@ -632,9 +823,7 @@ delay(1000); // luc
    driveDirection(RELEASE);
    delay(100);
    driveDirection(FORWARD);
-   delay(150);
-   driveDirection(RELEASE);
-   delay(100);
+  
    }
  }
  
