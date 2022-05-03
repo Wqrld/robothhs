@@ -390,7 +390,7 @@ void checkBlueTooth() {
   int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
-
+int H = getDistance();
   int hoogsteBrightness = 0;
 int servoAnglelinks = 15;
   int servoAngleRechtdoor = 90;
@@ -430,11 +430,12 @@ delay(1000);
 Serial.println(getDistance());
 delay(1000); // luc
   
- if ((getDistance() < 20 || getDistance() > 5000) && SecondmaxZ == 1 && maxZ == 0) {
+ if ((H < 20 || H > 5000) && SecondmaxZ == 1 && maxZ == 0) {
    driveDirection(RELEASE);
    s.write(servoAnglelinks);
       delay(100);
-   if ((getDistance() < 20 || getDistance() > 5000)) {
+      int SS=getDistance();
+   if ((SS < 20 || SS > 5000)) {
     delay(100); // luc
     s.write(servoAngleRechts);
     if (getDistance() > 10 ) {
@@ -452,7 +453,7 @@ delay(1000); // luc
    delay(100);
 
    //controleren of we naar links kunnen
-   if((getDistance() < 20 || getDistance() > 5000)) {
+   if((H < 20 || H > 5000)) {
     s.write(servoAnglelinks);
      delay(100); // luc
     if(getDistance() > 10){
@@ -511,7 +512,7 @@ delay(1000); // luc
    delay(100);
 
   //we kijken of we naar rechts kunnen
-   if((getDistance() < 20 || getDistance() > 5000)){
+   if(( H < 20 || H > 5000)){
     s.write(servoAngleRechts);
        delay(100);
     if(getDistance() > 10){
@@ -545,7 +546,7 @@ delay(1000); // luc
  }
  }
 //als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
- if ((getDistance() < 20 || getDistance() > 5000) && SecondmaxZ == 3 && maxZ == 0) {
+ if (( H < 20 || H > 5000) && SecondmaxZ == 3 && maxZ == 0) {
   driveDirection(RELEASE);
   delay(100);
   s.write(servoAngleRechts);
@@ -567,7 +568,7 @@ delay(1000); // luc
    delay(100);
    
    //controleren of we naar rechts kunnen
-   if((getDistance() < 20 || getDistance() > 5000)) {
+   if((H < 20 || H > 5000)) {
     s.write(servoAngleRechts);
        delay(100);
     if(getDistance() > 10){
