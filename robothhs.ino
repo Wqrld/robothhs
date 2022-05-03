@@ -400,7 +400,7 @@ int servoAnglelinks = 15;
   int maxZ = 0;
   int SecondmaxZ = 0;
   int secndmaxVal = 0;
-  int Kantsec =0;
+  int Kantsec = 0;
   //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
 
 
@@ -421,8 +421,8 @@ int servoAnglelinks = 15;
     
     if (readarray[z] < maxVal && readarray[z] !=maxVal){
       if(readarray[z] > SecondmaxZ){
-      SecondmaxZ= readarray[z]
-      Kantsec= z
+      SecondmaxZ = readarray[z]
+      Kantsec = z
       }
    }
     
