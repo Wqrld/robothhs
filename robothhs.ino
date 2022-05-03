@@ -420,7 +420,7 @@ int servoAnglelinks = 15;
     
     if (readarray [z] < maxVal){
         if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
-        SecondmaxZ = readarray[z];
+        SecondmaxZ = z;
         Serial.print(SecondmaxZ);
               }
       }
