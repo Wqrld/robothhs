@@ -400,6 +400,7 @@ int servoAnglelinks = 15;
   int maxZ = 0;
   int SecondmaxZ = 0;
   int secndmaxVal = 0;
+  int Kantsec =0;
   //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
 
 
@@ -418,19 +419,19 @@ int servoAnglelinks = 15;
       maxZ = z;
     }
     
-    if (readarray [z] < maxVal){
-        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
-        SecondmaxZ = z;
-        Serial.print(SecondmaxZ);
-              }
+    if (readarray[z] < maxVal && readarray[z] !=maxVal){
+      if(readarray[z] > SecondmaxZ){
+      SecondmaxZ= readarray[z]
+      Kantsec= z
       }
+   }
     
   }
 delay(1000);
 Serial.println(getDistance());
 delay(1000); // luc
   
- if ((H < 20 || H > 5000) && SecondmaxZ == 1 && maxZ == 0) {
+ if ((H < 20 || H > 5000) && Kantsec == 1 && maxZ == 0) {
    driveDirection(RELEASE);
    s.write(servoAnglelinks);
       delay(100);
@@ -546,7 +547,7 @@ delay(1000); // luc
  }
  }
 //als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
- if (( H < 20 || H > 5000) && SecondmaxZ == 3 && maxZ == 0) {
+ if (( H < 20 || H > 5000) && Kantsec == 3 && maxZ == 0) {
   driveDirection(RELEASE);
   delay(100);
   s.write(servoAngleRechts);
