@@ -401,13 +401,44 @@ int servoAnglelinks = 15;
   int SecondmaxZ = 0;
   int secndmaxVal = 0;
   //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
- if (getDistance < 10 && SecondmaxZ == 1 && maxZ == 0) {
+
+
+  for (int z = 0; z < 4; z++) {
+    // doe een lezing en sla deze op
+    readarray[z] = analogRead(Irbakken[z]);
+   // Serial.print(z);
+    //Serial.print("-");
+    //Serial.println(readarray[z]);
+
+    // Is dit de hoogste waarde?
+    if (readarray[z] > maxVal) {
+
+      secndmaxVal = maxVal;
+      maxVal = readarray[z];
+      maxZ = z;
+    }
+    
+    if (readarray [z] < maxVal){
+        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
+        SecondmaxZ = readarray[z];
+        Serial.print(SecondmaxZ);
+              }
+      }
+    
+  }
+delay(1000);
+Serial.println(getDistance());
+delay(1000); // luc
+  
+ if ((getDistance() < 20 || getDistance() > 5000) && SecondmaxZ == 1 && maxZ == 0) {
    driveDirection(RELEASE);
-   delay(100);
    s.write(servoAnglelinks);
-   if (getDistance < 10) {
+      delay(100);
+   if ((getDistance() < 20 || getDistance() > 5000)) {
+    delay(100); // luc
     s.write(servoAngleRechts);
-    if (getDistance > 10 ) {
+    if (getDistance() > 10 ) {
+      
         //Als links een obstakel is en rechts niet dan gaan we naar rechts staan, dan voren, dan links staan, dan rechtdoor
   
    driveDirection(TurnRight);
@@ -421,9 +452,10 @@ int servoAnglelinks = 15;
    delay(100);
 
    //controleren of we naar links kunnen
-   if(getDistance < 10) {
+   if((getDistance() < 20 || getDistance() > 5000)) {
     s.write(servoAnglelinks);
-    if(getDistance > 10){
+     delay(100); // luc
+    if(getDistance() > 10){
          driveDirection(TurnLeft);
    delay(150);
     driveDirection(RELEASE);
@@ -436,7 +468,8 @@ int servoAnglelinks = 15;
     }
     else{
       s.write(servoAngleRechts);
-      if(getDistance > 10){
+         delay(100);
+      if(getDistance() > 10){
         driveDirection(TurnRight);
         delay(150);
         driveDirection(RELEASE);
@@ -478,9 +511,10 @@ int servoAnglelinks = 15;
    delay(100);
 
   //we kijken of we naar rechts kunnen
-   if(getDistance < 10){
+   if((getDistance() < 20 || getDistance() > 5000)){
     s.write(servoAngleRechts);
-    if(getDistance > 10){
+       delay(100);
+    if(getDistance() > 10){
        driveDirection(TurnRight);
        delay(150);
        driveDirection(RELEASE);
@@ -493,7 +527,8 @@ int servoAnglelinks = 15;
      }
      else{
       s.write(servoAnglelinks);
-      if(getDistance > 10){
+         delay(100);
+      if(getDistance() > 10){
        driveDirection(TurnLeft);
        delay(150);
        driveDirection(RELEASE);
@@ -508,14 +543,17 @@ int servoAnglelinks = 15;
     }
    }
  }
+ }
 //als afstand kleiner is dan 10 en rechter IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar rechts en kijken we of er een obstakel is
- if (getDistance < 10 && SecondmaxZ == 3 && maxZ == 0) {
+ if ((getDistance() < 20 || getDistance() > 5000) && SecondmaxZ == 3 && maxZ == 0) {
   driveDirection(RELEASE);
   delay(100);
   s.write(servoAngleRechts);
-  if (getDistance < 10) {
+     delay(100);
+  if (getDistance()< 10) {
     s.write(servoAnglelinks);
-    if (getDistance > 10 ) {
+       delay(100);
+    if (getDistance() > 10 ) {
         //Als rechts een obstakel is en links niet dan gaan we naar links staan, dan voren, dan rechts staan, dan rechtdoor
       
    driveDirection(TurnLeft);
@@ -529,9 +567,10 @@ int servoAnglelinks = 15;
    delay(100);
    
    //controleren of we naar rechts kunnen
-   if(getDistance < 10) {
+   if((getDistance() < 20 || getDistance() > 5000)) {
     s.write(servoAngleRechts);
-    if(getDistance > 10){
+       delay(100);
+    if(getDistance() > 10){
          driveDirection(TurnRight);
    delay(150);
     driveDirection(RELEASE);
@@ -544,7 +583,8 @@ int servoAnglelinks = 15;
     }
     else{
       s.write(servoAnglelinks);
-      if(getDistance > 10){
+         delay(100);
+      if(getDistance() > 10){
         driveDirection(TurnLeft);
         delay(150);
         driveDirection(RELEASE);
@@ -596,6 +636,7 @@ int servoAnglelinks = 15;
    delay(100);
    }
  }
+ 
 
 
 
@@ -613,15 +654,15 @@ int servoAnglelinks = 15;
 
 
   // Hier kunnen we onze waarden in opslaan
-  int readarray[5];
-  int maxVal = 0;
-  int maxZ = 0;
-  int secndmaxVal = 0;
+//  int readarray[5];
+//  int maxVal = 0;
+//  int maxZ = 0;
+//  int secndmaxVal = 0;
   
   
   // Kort stoppen om te meten
-  driveDirection(RELEASE);
-  delay(100); // Genoeg om zeker te meten, maar toch snel
+//  driveDirection(RELEASE);
+ // delay(100); // Genoeg om zeker te meten, maar toch snel
 
   /*
    * Als hoger dan vorige hoogste
@@ -630,29 +671,6 @@ int servoAnglelinks = 15;
    * 
    */
   
-  for (int z = 0; z < 4; z++) {
-    // doe een lezing en sla deze op
-    readarray[z] = analogRead(Irbakken[z]);
-    Serial.print(z);
-    Serial.print("-");
-    Serial.println(readarray[z]);
-
-    // Is dit de hoogste waarde?
-    if (readarray[z] > maxVal) {
-
-      secndmaxVal = maxVal;
-      maxVal = readarray[z];
-      maxZ = z;
-    }
-    
-    if (readarray [z] < maxVal){
-        if (SecondmaxZ < readarray[z] && SecondmaxZ != maxVal){
-        SecondmaxZ = readarray[z];
-        Serial.print(SecondmaxZ);
-              }
-      }
-    
-  }
 
       // Afstand meten, nog niet in gebruik op het moment
    // Serial.print("HCSR04 distance: ");
@@ -660,47 +678,48 @@ int servoAnglelinks = 15;
 
   // Is onze hoogste meting meer dan de threshold van 120?
   // Heeft flink wat tuning nodig, de range stelt weinig voor.
-  if (maxVal > secndmaxVal + 15) {
-    //RIJ NAAR RICHTING Z
-    // v,l,a,r
-    if (maxZ == 0) {
-      driveDirection(FORWARD);
-      delay(700);
-    } else if (maxZ == 1) {
-      driveDirection(TurnLeft);
-      delay(300);
-    } else if (maxZ == 2) {
-      driveDirection(BACKWARD);
-      delay(700);
-    } else if (maxZ == 3) {
-      driveDirection(TurnRight);
-      delay(300);
-    }
-    driveDirection(RELEASE);
+//  if (maxVal > secndmaxVal + 15) {
+//    //RIJ NAAR RICHTING Z
+//    // v,l,a,r
+//    if (maxZ == 0) {
+//      driveDirection(FORWARD);
+//      delay(700);
+//    } else if (maxZ == 1) {
+//      driveDirection(TurnLeft);
+//      delay(300);
+//    } else if (maxZ == 2) {
+//      driveDirection(BACKWARD);
+//      delay(700);
+//    } else if (maxZ == 3) {
+//      driveDirection(TurnRight);
+//      delay(300);
+//    }
+//    driveDirection(RELEASE);
+//
+//  } else {
+//    // Niks gevonden, draaien en nog eens proberen.
+//    driveDirection(TurnLeft);
+//    delay(150);
+//    driveDirection(RELEASE);
+//    TurnTries++;
+//  }
+//
+//  if (TurnTries > 10) {
+//        // check if something in front of us?
+//    // drive forward if not as we cant find shit
+//    // and retry everything
+//
+//    int counter = 0;
+//    while(getDistance() > 10 && counter < 5){
+//      driveDirection(FORWARD);
+//      delay(200);
+//      driveDirection(RELEASE);
+//      delay(50); // kort stoppen zodat we stilstaan voor de afstand meting
+//      counter++;
+//    }
+//
+//    TurnTries = 0; 
+//  }
 
-  } else {
-    // Niks gevonden, draaien en nog eens proberen.
-    driveDirection(TurnLeft);
-    delay(150);
-    driveDirection(RELEASE);
-    TurnTries++;
-  }
-
-  if (TurnTries > 10) {
-        // check if something in front of us?
-    // drive forward if not as we cant find shit
-    // and retry everything
-
-    int counter = 0;
-    while(getDistance() > 10 && counter < 5){
-      driveDirection(FORWARD);
-      delay(200);
-      driveDirection(RELEASE);
-      delay(50); // kort stoppen zodat we stilstaan voor de afstand meting
-      counter++;
-    }
-
-    TurnTries = 0; 
-  }
+ }
   
-
