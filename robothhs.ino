@@ -140,22 +140,22 @@ inline void initPWM4(uint8_t freq) {
 }
 
 // Set duty cycles
-void setSpeed(uint8_t s) {
+void setSpeed(uint8_t speed) {
   // OCR = output compare register
   // Je timer telt op tot 255, en gaat uit als de waarde van het OCR* register gehaald is.
   // Hierdoor krijg je een duty cycle op een schaal van 0-255
 
   // motor 1, use PWM from timer2A on PB3 (Arduino pin #11)
-  OCR2A = s;
+  OCR2A = speed;
 
   // motor 2, use PWM from timer2B (pin 3)
-  OCR2B = s;
+  OCR2B = speed;
 
   // motor 3, use PWM from timer0A / PD6 (pin 6)
-  OCR0A = s;
+  OCR0A = speed;
 
   // motor 4, use PWM from timer0B / PD5 (pin 5)
-  OCR0B = s;
+  OCR0B = speed;
 }
 
 
