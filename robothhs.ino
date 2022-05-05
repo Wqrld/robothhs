@@ -392,9 +392,11 @@ void loop() {
   // Reset alle info voor een nieuwe run
 int H = getDistance();
   int hoogsteBrightness = 0;
-int servoAnglelinks = 55;
+  
+int servoAnglelinks = 45;
   int servoAngleRechtdoor = 90;
-  int servoAngleRechts = 125;
+  int servoAngleRechts = 135;
+
   int readarray[5];
   int maxVal = 0;
   int maxZ = 0;
@@ -442,6 +444,7 @@ delay(100);
 delay(100); // luc
   if (maxZ == 0) {
   driveDirection(FORWARD);
+
  if (H < 20 || H > 5000) {
    driveDirection(RELEASE);
    s.write(servoAnglelinks);
