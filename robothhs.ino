@@ -404,9 +404,7 @@ int servoAnglelinks = 45;
 
 
   for (int z = 0; z < 4; z++) {
-    if(z == 1){
-      continue;
-    }
+  
     // doe een lezing en sla deze op
     readarray[z] = analogRead(Irbakken[z]);
    // Serial.print(z);
