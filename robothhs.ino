@@ -450,7 +450,7 @@ void loop() {
         //links zit een muur dan gaan we naar rechts kijken met UR sensor
         s.write(servoAngleRechts);
         int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
+        if (RR > 10  && RR < 900 ) {
           //als rechts ruimte is dan gaan we rechts
           driveDirection(TurnRight);
           delay(150);
@@ -494,7 +494,7 @@ void loop() {
         //links zit een muur dan gaan we naar rechts kijken met UR sensor
         s.write(servoAngleRechts);
         int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
+        if (RR > 10  && RR < 900 ) {
           //als rechts ruimte is dan gaan we rechts
           driveDirection(TurnRight);
           delay(150);
@@ -539,7 +539,7 @@ void loop() {
         //links zit een muur dan gaan we naar rechts kijken met UR sensor
         s.write(servoAngleRechts);
         int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
+        if (RR > 10  && RR < 900 ) {
           //als rechts ruimte is dan gaan we rechts
           driveDirection(TurnRight);
           delay(150);
@@ -584,7 +584,7 @@ void loop() {
         //links zit een muur dan gaan we naar rechts kijken met UR sensor
         s.write(servoAngleRechts);
         int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
+        if (RR > 10  && RR < 900 ) {
           //als rechts ruimte is dan gaan we rechts
           driveDirection(TurnRight);
           delay(150);
@@ -612,4 +612,3 @@ void loop() {
 
 
 }
-
