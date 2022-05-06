@@ -55,6 +55,10 @@ bool manual = 0;
 #define TurnLeft 7
 #define TurnRight 8
 
+#define servoAnglelinks 45
+#define servoAngleRechtdoor 90
+#define servoAngleRechts 135
+
 // Motor frequency definitions (all 1khz, may be audible but best torque)
 #define MOTOR12_1KHZ _BV(CS22)              // divide by 64
 #define MOTOR34_1KHZ _BV(CS01) | _BV(CS00)  // divide by 64
@@ -434,9 +438,6 @@ void voorlinksrechts() {
 int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
-  int servoAnglelinks = 45;
-  int servoAngleRechtdoor = 90;
-  int servoAngleRechts = 135;
   int readarray[5];
   int maxVal = 0;
   int maxZ = 0;
@@ -506,7 +507,7 @@ void loop() {
     //rijdt richting IR BAKEN (VOORSTE LED IS MAXZ DAN)
     driveDirection(TurnRight);
     delay(300);
-    voorlinksrechts()
+    voorlinksrechts();
 
   }
 
