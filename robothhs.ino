@@ -8,6 +8,10 @@
 
 bool manual = 0;
 
+// TODO CHANGE THESE PINS
+#define sensorLinks 13
+#define sensorRechts 12
+
 #define LA 2
 #define LV 1
 #define RV 4
@@ -55,6 +59,10 @@ bool manual = 0;
 #define TurnLeft 7
 #define TurnRight 8
 
+#define servoAnglelinks 45
+#define servoAngleRechtdoor 90
+#define servoAngleRechts 135
+
 // Motor frequency definitions (all 1khz, may be audible but best torque)
 #define MOTOR12_1KHZ _BV(CS22)              // divide by 64
 #define MOTOR34_1KHZ _BV(CS01) | _BV(CS00)  // divide by 64
@@ -70,7 +78,7 @@ Servo s;
 static uint8_t latch_state;
 
 // Poort indices voor de IR baken sensoren.
-int Irbakken[] = {A2, A3, A4, A5};
+int IRBakens[] = {A2, A3, A4, A5};
 //v,l,a,r
 
 
@@ -146,16 +154,21 @@ void setSpeed(uint8_t speed) {
   // Hierdoor krijg je een duty cycle op een schaal van 0-255
 
   // motor 1, use PWM from timer2A on PB3 (Arduino pin #11)
-  OCR2A = speed;
+  //  OCR2A = speed;
 
   // motor 2, use PWM from timer2B (pin 3)
-  OCR2B = speed;
+  // OCR2B = speed;
 
   // motor 3, use PWM from timer0A / PD6 (pin 6)
-  OCR0A = speed;
+  // OCR0A = speed;
 
   // motor 4, use PWM from timer0B / PD5 (pin 5)
-  OCR0B = speed;
+  // OCR0B = speed;
+
+  analogWrite(11, speed);
+  analogWrite(3, speed);
+  analogWrite(6, speed);
+  analogWrite(5, speed);
 }
 
 
@@ -166,22 +179,22 @@ void initMotor(uint8_t num, uint8_t freq) {
     case 1:
       latch_state &= ~_BV(MOTOR1_A) & ~_BV(MOTOR1_B); // set both motor pins to 0
       latch_tx();
-      initPWM1(freq);
+      //initPWM1(freq);
       break;
     case 2:
       latch_state &= ~_BV(MOTOR2_A) & ~_BV(MOTOR2_B); // set both motor pins to 0
       latch_tx();
-      initPWM2(freq);
+      //initPWM2(freq);
       break;
     case 3:
       latch_state &= ~_BV(MOTOR3_A) & ~_BV(MOTOR3_B); // set both motor pins to 0
       latch_tx();
-      initPWM3(freq);
+      // initPWM3(freq);
       break;
     case 4:
       latch_state &= ~_BV(MOTOR4_A) & ~_BV(MOTOR4_B); // set both motor pins to 0
       latch_tx();
-      initPWM4(freq);
+      // initPWM4(freq);
       break;
   }
 }
@@ -200,10 +213,10 @@ void driveDirection(uint8_t cmd) {
     drive(BACKWARD, LV);
     drive(FORWARD, RV);
   } else if (cmd == RIGHT) {
-    drive(FORWARD, LA);
+    drive(BACKWARD, LA);
     drive(FORWARD, RA);
     drive(FORWARD, LV);
-    drive(FORWARD, RV);
+    drive(BACKWARD, RV);
   } else if (cmd == TurnRight) {
     drive(FORWARD, LV);
     drive(FORWARD, LA);
@@ -319,11 +332,11 @@ void setup() {
   initMotor(3, MOTOR34_1KHZ);
   initMotor(4, MOTOR34_1KHZ);
 
-  // speed (duty cycle) up to 255, maar tot 128 veilig
-  setSpeed(128);
+  // speed (duty cycle) up to 255, maar tot 180 veilig
+  setSpeed(180);
 
   //Possible options: FORWARD, BACKWARD, RELEASE, LEFT, RIGHT, TurnLeft, TurnRight
-  driveDirection(TurnLeft);
+  driveDirection(TurnRight);
   // Init serial output
   Serial.begin(9600);
   Serial.flush();
@@ -387,17 +400,135 @@ void checkBlueTooth() {
 
   }
 }
+
+//void voorlinksrechts() {
+//
+//
+//  driveDirection(FORWARD);
+//  //Obstakel staat voor het wagen
+//  int VV = getDistance(); //de opgeslagen afstand van voor
+//  if (VV < 20 || VV > 900) {
+//    driveDirection(RELEASE);
+//    //draait servo dan naar links en checkt of er links een muur zit
+//    s.write(servoAnglelinks);
+//    delay(100);
+//    int LL = getDistance(); //de opgeslagen afstand van links
+//    if ((LL < 20 || LL > 900)) {
+//      delay(100); // luc
+//      //links zit een muur dan gaan we naar rechts kijken met UR sensor
+//      s.write(servoAngleRechts);
+//      int RR = getDistance(); //de opgeslagen afstand van rechts
+//      if (RR > 10  && RR < 900 ) {
+//        //als rechts ruimte is dan gaan we rechts
+//        driveDirection(TurnRight);
+//        delay(150);
+//        driveDirection(RELEASE);
+//        delay(100);
+//        s.write(servoAngleRechtdoor);
+//        driveDirection(FORWARD);
+//        //Als links en rechts een muur zit dan rijden we even naar achter
+//      } else {
+//        driveDirection(BACKWARD);
+//        delay(300);
+//      }
+//      //als linker kant vrij is dan gaat het naar links
+//    } else {
+//      driveDirection(TurnLeft);
+//      delay(150);
+//      driveDirection(RELEASE);
+//      delay(100);
+//      s.write(servoAngleRechtdoor);
+//      driveDirection(FORWARD);
+//    }
+//  }
+//
+//}
+
+struct IRWaarden {
+  int maxValue;
+  int maxDirection;
+};
+
+struct IRWaarden getIRDirection() {
+  int IRWaarden[5];
+  int maxVal = 0;
+  int maxZ = 0;
+  int secondMaxDirection = 0;
+  int secondMaxValue = 0;
+
+  for (int z = 0; z < 4; z++) {
+    // doe een lezing en sla deze op
+    IRWaarden[z] = analogRead(IRBakens[z]);
+
+    // Is dit de hoogste waarde?
+    if (IRWaarden[z] > maxVal) {
+
+      secondMaxValue = maxVal;
+      secondMaxDirection = maxZ;
+      maxVal = IRWaarden[z];
+      maxZ = z;
+    }
+
+
+  }
+
+  struct IRWaarden waarde = { maxVal, maxZ };
+  return waarde;
+}
+
+
+struct IRWaarden IRcalibreren() {
+  int pogingen = 0;
+  struct IRWaarden waarden;
+  while (true) {
+
+    waarden = getIRDirection();
+
+    // Draai tot we een waarde boven de 50 hebben of als we het 20 keer geprobeert hebben.
+    if (waarden.maxValue > 50 || pogingen > 20) {
+      break;
+    } else {
+      driveDirection(TurnLeft);
+      delay(25);
+      driveDirection(RELEASE);
+      pogingen++;
+
+    }
+
+  }
+  return waarden;
+
+}
+
+void richtingCalibreren() {
+
+  bool muurlinks = digitalRead(sensorLinks);
+  bool muurrechts = digitalRead(sensorRechts);
+
+  if (muurlinks && !muurrechts) {
+    // kort naar achter en dan rechts
+    driveDirection(BACKWARD);
+    delay(10);
+    driveDirection(RIGHT);
+    delay(30);
+    driveDirection(RELEASE);
+  } else if (!muurlinks && muurrechts) {
+    // kort naar achter en dan links.
+    driveDirection(BACKWARD);
+    delay(10);
+    driveDirection(LEFT);
+    delay(30);
+    driveDirection(RELEASE);
+  }
+
+
+
+}
+
 int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
-  int servoAnglelinks = 45;
-  int servoAngleRechtdoor = 90;
-  int servoAngleRechts = 135;
-  int readarray[5];
-  int maxVal = 0;
-  int maxZ = 0;
-  int SecondmaxZ = 0;
-  int secndmaxVal = 0;
+
 
   // Hebben we nieuwe bluetooth commandos gehad?
   checkBlueTooth();
@@ -405,211 +536,16 @@ void loop() {
     return; // If manual, don't run through the algorithm.
   }
 
-  //als afstand kleiner is dan 10 en linker IR Led de secondmaxvalue kant is en voor MaxValue is, dan kijken we met Distance sensor naar links en kijken we of er een obstakel is
-
-  for (int z = 0; z < 4; z++) {
-    // doe een lezing en sla deze op
-    readarray[z] = analogRead(Irbakken[z]);
-
-    // Is dit de hoogste waarde?
-    if (readarray[z] > maxVal) {
-
-      secndmaxVal = maxVal;
-      SecondmaxZ = maxZ;
-      maxVal = readarray[z];
-      maxZ = z;
-    }
 
 
-  }
 
-  delay(100); // korte delay voor we weer meten
-  Serial.print("HCSR04 distance: ");
-  Serial.println(getDistance());
-  Serial.print("secondmaxZ; ");
-  Serial.println(SecondmaxZ);
-  Serial.print("maxZ: ");
-  Serial.println(maxZ);
-
-  delay(100); // korte delay voor we weer meten
-
-  // MAXZ KOMT UIT VOORSTE IRLED
-  if (maxZ == 0) {
-    //rijdt richting IR BAKEN (VOORSTE LED IS MAXZ DAN)
+  if (getDistance() > 10) {
     driveDirection(FORWARD);
-    //Obstakel staat voor het wagen
-    int VV = getDistance(); //de opgeslagen afstand van voor
-    if (VV < 20 || VV > 900) {
-      driveDirection(RELEASE);
-      //draait servo dan naar links en checkt of er links een muur zit
-      s.write(servoAnglelinks);
-      delay(100);
-      int LL = getDistance(); //de opgeslagen afstand van links
-      if ((LL < 20 || LL > 900)) {
-        delay(100); // luc
-        //links zit een muur dan gaan we naar rechts kijken met UR sensor
-        s.write(servoAngleRechts);
-        int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
-          //als rechts ruimte is dan gaan we rechts
-          driveDirection(TurnRight);
-          delay(150);
-          driveDirection(RELEASE);
-          delay(100);
-          s.write(servoAngleRechtdoor);
-          driveDirection(FORWARD);
-          //Als links en rechts een muur zit dan rijden we even naar achter
-        } else {
-          driveDirection(BACKWARD);
-          delay(300);
-        }
-        //als linker kant vrij is dan gaat het naar links
-      } else {
-        driveDirection(TurnLeft);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
-        s.write(servoAngleRechtdoor);
-        driveDirection(FORWARD);
-      }
-    }
-  }
-
-  // MAXZ KOMT UIT LINKER IRLED
-  if (maxZ == 1) {
-    //rijdt richting IR BAKEN (VOORSTE LED IS MAXZ DAN)
+    delay(10);
+  } else {
     driveDirection(TurnLeft);
-    delay(300);
-    driveDirection(FORWARD);
-    //Obstakel staat voor het wagen
-    int VV = getDistance(); //de opgeslagen afstand van voor
-    if (VV < 20 || VV > 900) {
-      driveDirection(RELEASE);
-      //draait servo dan naar links en checkt of er links een muur zit
-      s.write(servoAnglelinks);
-      delay(100);
-      int LL = getDistance(); //de opgeslagen afstand van links
-      if ((LL < 20 || LL > 900)) {
-        delay(100); // luc
-        //links zit een muur dan gaan we naar rechts kijken met UR sensor
-        s.write(servoAngleRechts);
-        int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
-          //als rechts ruimte is dan gaan we rechts
-          driveDirection(TurnRight);
-          delay(150);
-          driveDirection(RELEASE);
-          delay(100);
-          s.write(servoAngleRechtdoor);
-          driveDirection(FORWARD);
-          //Als links en rechts een muur zit dan rijden we even naar achter
-        } else {
-          driveDirection(BACKWARD);
-          delay(300);
-        }
-        //als linker kant vrij is dan gaat het naar links
-      } else {
-        driveDirection(TurnLeft);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
-        s.write(servoAngleRechtdoor);
-        driveDirection(FORWARD);
-      }
-    }
-    //afsluiting haakje van links
-  }
-
-  // MAXZ KOMT UIT ACHTERSTE IRLED
-  if (maxZ == 2) {
-    //rijdt richting IR BAKEN (VOORSTE LED IS MAXZ DAN)
-    driveDirection(TurnLeft);
-    delay(600);
-    driveDirection(FORWARD);
-    //Obstakel staat voor het wagen
-    int VV = getDistance(); //de opgeslagen afstand van voor
-    if (VV < 20 || VV > 900) {
-      driveDirection(RELEASE);
-      //draait servo dan naar links en checkt of er links een muur zit
-      s.write(servoAnglelinks);
-      delay(100);
-      int LL = getDistance(); //de opgeslagen afstand van links
-      if ((LL < 20 || LL > 900)) {
-        delay(100); // luc
-        //links zit een muur dan gaan we naar rechts kijken met UR sensor
-        s.write(servoAngleRechts);
-        int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
-          //als rechts ruimte is dan gaan we rechts
-          driveDirection(TurnRight);
-          delay(150);
-          driveDirection(RELEASE);
-          delay(100);
-          s.write(servoAngleRechtdoor);
-          driveDirection(FORWARD);
-          //Als links en rechts een muur zit dan rijden we even naar achter
-        } else {
-          driveDirection(BACKWARD);
-          delay(300);
-        }
-        //als linker kant vrij is dan gaat het naar links
-      } else {
-        driveDirection(TurnLeft);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
-        s.write(servoAngleRechtdoor);
-        driveDirection(FORWARD);
-      }
-    }
-    //afsluiting haakje van achter
-  }
-
-  // MAXZ KOMT UIT RECHTER IRLED
-  if (maxZ == 3) {
-    //rijdt richting IR BAKEN (VOORSTE LED IS MAXZ DAN)
-    driveDirection(TurnRight);
-    delay(300);
-    driveDirection(FORWARD);
-    //Obstakel staat voor het wagen
-    int VV = getDistance(); //de opgeslagen afstand van voor
-    if (VV < 20 || VV > 900) {
-      driveDirection(RELEASE);
-      //draait servo dan naar links en checkt of er links een muur zit
-      s.write(servoAnglelinks);
-      delay(100);
-      int LL = getDistance(); //de opgeslagen afstand van links
-      if ((LL < 20 || LL > 900)) {
-        delay(100); // luc
-        //links zit een muur dan gaan we naar rechts kijken met UR sensor
-        s.write(servoAngleRechts);
-        int RR = getDistance(); //de opgeslagen afstand van rechts
-        if (RR > 10  || RR < 900 ) {
-          //als rechts ruimte is dan gaan we rechts
-          driveDirection(TurnRight);
-          delay(150);
-          driveDirection(RELEASE);
-          delay(100);
-          s.write(servoAngleRechtdoor);
-          driveDirection(FORWARD);
-          //Als links en rechts een muur zit dan rijden we even naar achter
-        } else {
-          driveDirection(BACKWARD);
-          delay(300);
-        }
-        //als linker kant vrij is dan gaat het naar links
-      } else {
-        driveDirection(TurnLeft);
-        delay(150);
-        driveDirection(RELEASE);
-        delay(100);
-        s.write(servoAngleRechtdoor);
-        driveDirection(FORWARD);
-      }
-    }
-    //afsluiting haakje van rechts achter
+    delay(10);
   }
 
 
 }
-
