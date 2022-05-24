@@ -451,7 +451,8 @@ struct IRWaarden {
 };
 
 struct IRWaarden getIRDirection() {
-  int IRWaarden[5];
+  int IRWaardenArray[5] = { 0 };
+  
   int maxVal = 0;
   int maxZ = 0;
   int secondMaxDirection = 0;
@@ -459,21 +460,21 @@ struct IRWaarden getIRDirection() {
 
   for (int z = 0; z < 4; z++) {
     // doe een lezing en sla deze op
-    IRWaarden[z] = analogRead(IRBakens[z]);
+    IRWaardenArray[z] = analogRead(IRBakens[z]);
 
     // Is dit de hoogste waarde?
-    if (IRWaarden[z] > maxVal) {
+    if (IRWaardenArray[z] > maxVal) {
 
       secondMaxValue = maxVal;
       secondMaxDirection = maxZ;
-      maxVal = IRWaarden[z];
+      maxVal = IRWaardenArray[z];
       maxZ = z;
     }
 
 
   }
 
-  struct IRWaarden waarde = { maxVal, maxZ, IRWaarden };
+  struct IRWaarden waarde = { maxVal, maxZ, (int *)IRWaardenArray };
   return waarde;
 }
 
@@ -533,7 +534,7 @@ void zigzag() {
   struct IRWaarden links = getIRDirection();
   // midden
   driveDirection(TurnRight);
-  delay(10)
+  delay(10);
   struct IRWaarden midden = getIRDirection();
   // rechts
   delay(10);
