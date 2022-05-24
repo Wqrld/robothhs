@@ -447,6 +447,7 @@ void checkBlueTooth() {
 struct IRWaarden {
   int maxValue;
   int maxDirection;
+  int IRWaarden[5];
 };
 
 struct IRWaarden getIRDirection() {
@@ -472,7 +473,7 @@ struct IRWaarden getIRDirection() {
 
   }
 
-  struct IRWaarden waarde = { maxVal, maxZ };
+  struct IRWaarden waarde = { maxVal, maxZ, IRWaarden };
   return waarde;
 }
 
@@ -525,6 +526,38 @@ void richtingCalibreren() {
 
 }
 
+void zigzag() {
+  // links
+  driveDirection(TurnLeft);
+  delay(10);
+  struct IRWaarden links = getIRDirection();
+  // midden
+  driveDirection(TurnRight);
+  delay(10)
+  struct IRWaarden midden = getIRDirection();
+  // rechts
+  delay(10);
+  struct IRWaarden rechts = getIRDirection();
+  if(links.maxValue >= rechts.maxValue && links.maxValue >= midden.maxValue){
+    // links
+    driveDirection(TurnLeft);
+    delay(20);
+  }else  if(rechts.maxValue >= midden.maxValue && rechts.maxValue >= links.maxValue){
+    // midden
+    driveDirection(TurnLeft);
+    delay(10);
+  } else {                                                                                       
+    // We staan al rechts
+  }
+  
+  // Iets naar voren presumably
+  if(getDistance() > 15){
+   driveDirection(FORWARD); 
+  }
+
+    
+}
+
 int TurnTries = 0;
 void loop() {
   // Reset alle info voor een nieuwe run
@@ -539,8 +572,8 @@ void loop() {
 
 
 
-  if (getDistance() > 10) {
-    driveDirection(FORWARD);
+  if (getDistance() > 15) {
+    zigzag();
     delay(10);
   } else {
     driveDirection(TurnLeft);
