@@ -605,10 +605,8 @@ void zigzag() {
   // Iets naar voren presumably
   if(getDistance() > 15){
    driveDirection(FORWARD); 
-  }else{
-    
   }
-  }
+  
 
     
 }
