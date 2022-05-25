@@ -51,14 +51,14 @@ bool manual = 0;
 #define MOTORDATA 8
 
 // Constants that the user passes in to the motor calls
-#define FORWARD 1
+#define FORWARD 0
 #define BACKWARD 2
 #define RELEASE 4
 
-#define LEFT 5
-#define RIGHT 6
-#define TurnLeft 7
-#define TurnRight 8
+#define LEFT 1
+#define RIGHT 3
+#define TurnLeft 5
+#define TurnRight 6
 
 #define servoAnglelinks 45
 #define servoAngleRechtdoor 90
@@ -543,15 +543,38 @@ void zigzag() {
   delay(10);
   struct IRWaarden rechts = getIRDirection();
   if(links.maxValue >= rechts.maxValue && links.maxValue >= midden.maxValue){
-    // links
+    // links zagen we het meeste
     driveDirection(TurnLeft);
     delay(20);
-  }else  if(rechts.maxValue >= midden.maxValue && rechts.maxValue >= links.maxValue){
-    // midden
+
+    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+    if(links.maxValue > 300){
+      driveDirection(links.maxDirection);
+      delay(100);
+    }
+    
+  }else  if(midden.maxValue >= links.maxValue && midden.maxValue >= rechts.maxValue){
+    // midden zagen we het meeste
     driveDirection(TurnLeft);
     delay(10);
+
+
+    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+    if(midden.maxValue > 300){
+      driveDirection(links.maxDirection);
+      delay(100);
+    }
+    
   } else {                                                                                       
-    // We staan al rechts
+    // We staan al rechts 
+
+     
+    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+    if(rechts.maxValue > 300){
+      driveDirection(links.maxDirection);
+      delay(100);
+    }
+    
   }
   
   // Iets naar voren presumably
@@ -580,6 +603,9 @@ void loop() {
     zigzag();
     delay(10);
   } else {
+    // TODO add dist check links voor we dit doen
+    driveDirection(LEFT);
+    delay(5);
     driveDirection(TurnLeft);
     delay(10);
   }
