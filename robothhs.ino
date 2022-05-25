@@ -10,8 +10,8 @@
 bool manual = 0;
 
 // TODO CHANGE THESE PINS
-#define sensorLinks 13
-#define sensorRechts 12
+#define sensorLinks 15
+#define sensorRechts 19
 
 #define LA 2
 #define LV 1
@@ -463,6 +463,7 @@ struct IRWaarden getIRDirection() {
   int secondMaxValue = 0;
 
   for (int z = 0; z < 4; z++) {
+//if(z==1){continue;}
     // doe een lezing en sla deze op
     IRWaardenArray[z] = analogRead(IRBakens[z]);
 
@@ -536,39 +537,52 @@ void richtingCalibreren() {
 void zigzag() {
   // links
   driveDirection(TurnLeft);
-  delay(10);
+  delay(25);
+  driveDirection(FORWARD);
+  delay(25);
   struct IRWaarden links = getIRDirection();
   // midden
   driveDirection(TurnRight);
-  delay(10);
+  delay(25);
+  driveDirection(FORWARD);
+  delay(25);  
   struct IRWaarden midden = getIRDirection();
   // rechts
+  driveDirection(TurnRight);
+  delay(25);
+  driveDirection(FORWARD);
   delay(10);
   struct IRWaarden rechts = getIRDirection();
-  if(links.maxValue >= rechts.maxValue && links.maxValue >= midden.maxValue){
+  Serial.print("links maxval: ");
+  Serial.println(links.maxValue);
+  if(links.maxValue > rechts.maxValue && links.maxValue > midden.maxValue){
     // links zagen we het meeste
     driveDirection(TurnLeft);
-    delay(20);
+    delay(50);
 
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(links.maxValue > 300){
+    if(links.maxValue > 50){
       driveDirection(links.maxDirection);
-      while(analogRead(links.maxDirection) > 100){
-        delay(10);
+      int waarde = analogRead(links.maxDirection);
+      while(waarde> 30){
+        waarde = analogRead(links.maxDirection);
+        delay(20);
       }
     }
     
-  }else  if(midden.maxValue >= links.maxValue && midden.maxValue >= rechts.maxValue){
+  }else  if(midden.maxValue > links.maxValue && midden.maxValue > rechts.maxValue){
     // midden zagen we het meeste
     driveDirection(TurnLeft);
-    delay(10);
+    delay(25);
 
 
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(midden.maxValue > 300){
+    if(midden.maxValue > 50){
       driveDirection(midden.maxDirection);
-      while(analogRead(midden.maxDirection) > 100){
-        delay(10);
+      int waarde = analogRead(midden.maxDirection);
+      while(waarde > 30){
+        waarde = analogRead(midden.maxDirection);
+        delay(20);
       }
     }
     
@@ -577,9 +591,11 @@ void zigzag() {
 
      
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(rechts.maxValue > 300){
+    if(rechts.maxValue > 50){
       driveDirection(rechts.maxDirection);
-      while(analogRead(rechts.maxDirection) > 100){
+      int waarde = analogRead(rechts.maxDirection);
+      while(waarde > 30){
+        waarde = analogRead(rechts.maxDirection);
         delay(10);
       }
     }
@@ -589,6 +605,9 @@ void zigzag() {
   // Iets naar voren presumably
   if(getDistance() > 15){
    driveDirection(FORWARD); 
+  }else{
+    
+  }
   }
 
     
@@ -608,16 +627,39 @@ void loop() {
 
 
 
-   if (getDistance() > 10) {
+  if (getDistance() > 20) {
+   // zigzag();
+   struct IRWaarden links = getIRDirection();
+   Serial.print("max val: ");
+   Serial.println(links.maxValue);
+   if(links.maxValue > 20){
+   driveDirection(links.maxDirection);
+    delay(300);
+   }else{
     driveDirection(FORWARD);
-    delay(10);
+    delay(30);
+   }
+  // }
+
   } else {
+    // TODO add dist check links voor we dit doen
     driveDirection(BACKWARD);
-    delay(30);
+    delay(10);
+    if(digitalRead(sensorRechts) == 0){
+
     driveDirection(LEFT);
-    delay(30);
+    delay(5);
     driveDirection(TurnLeft);
-    delay(50);
+    delay(10);
+
+    }else{
+      
+    driveDirection(RIGHT);
+    delay(5);
+    driveDirection(TurnRight);
+    delay(10);
+    }
   }
+
 
 }
