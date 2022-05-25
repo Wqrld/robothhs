@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include <String.h>
 
 //todo trigger pin echo pin distout distin
 // linksachter motor2
@@ -606,6 +605,7 @@ void zigzag() {
   if(getDistance() > 15){
    driveDirection(FORWARD); 
   }
+    
   
 
     
@@ -634,6 +634,19 @@ void loop() {
    driveDirection(links.maxDirection);
     delay(300);
    }else{
+//    if(digitalRead(sensorRechts) == 0){
+//      driveDirection(BACKWARD);
+//      delay(7);
+//      driveDirection(LEFT);
+//      delay(7);
+//    }
+//    if(digitalRead(sensorLinks) == 0){
+//      driveDirection(BACKWARD);
+//      delay(7);
+//      driveDirection(RIGHT);
+//      delay(7);
+//    }
+    //if(digitalRead(sensorRechts) == 0 && digitalRead(sensorLinks) == 0)
     driveDirection(FORWARD);
     delay(30);
    }
