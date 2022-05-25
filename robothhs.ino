@@ -68,6 +68,9 @@ bool manual = 0;
 #define MOTOR12_1KHZ _BV(CS22)              // divide by 64
 #define MOTOR34_1KHZ _BV(CS01) | _BV(CS00)  // divide by 64
 
+#define MOTOR12_8KHZ _BV(CS21)              // divide by 8
+#define MOTOR34_8KHZ _BV(CS01)              // divide by 8
+
 // Servo
 #define servoPin 10
 Servo s;
@@ -328,10 +331,10 @@ void setup() {
   digitalWrite(MOTORENABLE, LOW);
 
   //1khz geeft de beste efficiency
-  initMotor(1, MOTOR12_1KHZ);
-  initMotor(2, MOTOR12_1KHZ);
-  initMotor(3, MOTOR34_1KHZ);
-  initMotor(4, MOTOR34_1KHZ);
+  initMotor(1, MOTOR12_8KHZ);
+  initMotor(2, MOTOR12_8KHZ);
+  initMotor(3, MOTOR34_8KHZ);
+  initMotor(4, MOTOR34_8KHZ);
 
   // speed (duty cycle) up to 255, maar tot 180 veilig
   setSpeed(180);
@@ -550,7 +553,9 @@ void zigzag() {
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
     if(links.maxValue > 300){
       driveDirection(links.maxDirection);
-      delay(100);
+      while(analogRead(links.maxDirection) > 100){
+        delay(10);
+      }
     }
     
   }else  if(midden.maxValue >= links.maxValue && midden.maxValue >= rechts.maxValue){
@@ -561,8 +566,10 @@ void zigzag() {
 
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
     if(midden.maxValue > 300){
-      driveDirection(links.maxDirection);
-      delay(100);
+      driveDirection(midden.maxDirection);
+      while(analogRead(midden.maxDirection) > 100){
+        delay(10);
+      }
     }
     
   } else {                                                                                       
@@ -571,8 +578,10 @@ void zigzag() {
      
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
     if(rechts.maxValue > 300){
-      driveDirection(links.maxDirection);
-      delay(100);
+      driveDirection(rechts.maxDirection);
+      while(analogRead(rechts.maxDirection) > 100){
+        delay(10);
+      }
     }
     
   }
