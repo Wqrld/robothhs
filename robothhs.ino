@@ -608,16 +608,16 @@ void loop() {
 
 
 
-  if (getDistance() > 15) {
-    zigzag();
+   if (getDistance() > 10) {
+    driveDirection(FORWARD);
     delay(10);
   } else {
-    // TODO add dist check links voor we dit doen
+    driveDirection(BACKWARD);
+    delay(30);
     driveDirection(LEFT);
-    delay(5);
+    delay(30);
     driveDirection(TurnLeft);
-    delay(10);
+    delay(50);
   }
-
 
 }
