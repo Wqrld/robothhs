@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <String.h>
 
 //todo trigger pin echo pin distout distin
 // linksachter motor2
@@ -474,7 +475,9 @@ struct IRWaarden getIRDirection() {
 
   }
 
-  struct IRWaarden waarde = { maxVal, maxZ, (int *)IRWaardenArray };
+  struct IRWaarden waarde = { maxVal, maxZ };
+  // Workaround omdat c++ geen arrays in structs wil hebben zonder pointers.
+  memcpy(waarde.IRWaarden, IRWaardenArray, sizeof(int) * 5);
   return waarde;
 }
 
