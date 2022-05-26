@@ -636,6 +636,16 @@ void loop() {
       delay(300);
     } else {
       // Just drive around aimlessly until we get a reading
+      if (digitalRead(sensorRechts) == 0 && digitalRead(sensorLinks) == 1) {
+          // Muur rechts
+          driveDirection(LEFT);
+          delay(15);
+      }
+      if (digitalRead(sensorRechts) == 1 && digitalRead(sensorLinks) == 0) {
+        // Muur links
+          driveDirection(RIGHT);
+          delay(15);
+      }
       driveDirection(FORWARD);
       delay(30);
     }
