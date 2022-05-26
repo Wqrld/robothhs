@@ -631,9 +631,14 @@ void loop() {
     // IR beacon in one of the 4 sides
     if (links.maxValue > 20) {
       driveDirection(links.maxDirection);
-      // TODO drive until we can't see it anymore / actually follow w/ zigzag.
-      // We might hit walls here driving sidewards/back but probably won't get stuck.
-      delay(300);
+      // TODO actually follow w/ zigzag.
+      // We might hit walls here driving sidewards/back but probably won't get stuck as the goal is moving.
+
+      // Drive to where we saw the beacon until we can't see it goal anymore, then repeat the whole sequence
+      while(analogRead(links.maxDirection) > 20){
+        delay(100);
+      }
+
     } else {
       // Just drive around aimlessly until we get a reading
       if (digitalRead(sensorRechts) == 0 && digitalRead(sensorLinks) == 1) {
