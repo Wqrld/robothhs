@@ -586,8 +586,7 @@ void zigzag() {
     }
 
   } else {
-    // We staan al rechts
-
+    // We staan al rechts, dus we hoeven niet te draaien.
 
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
     if (rechts.maxValue > 50) {
@@ -611,9 +610,9 @@ void zigzag() {
 
 }
 
-int TurnTries = 0;
+// The main loop for our program.
+// Delays are kept as low as possible to have a higher chance of the IR beacon picking up a vehicle driving past.
 void loop() {
-  // Reset alle info voor een nieuwe run
 
 
   // Hebben we nieuwe bluetooth commandos gehad?
@@ -623,27 +622,31 @@ void loop() {
   }
 
 
-
-
+  // Nothing in front of us
   if (getDistance() > 20) {
     // zigzag();
     struct IRWaarden links = getIRDirection();
     Serial.print("max val: ");
     Serial.println(links.maxValue);
+    // IR beacon in one of the 4 sides
     if (links.maxValue > 20) {
       driveDirection(links.maxDirection);
+      // TODO drive until we can't see it anymore / actually follow w/ zigzag.
+      // We might hit walls here driving sidewards/back but probably won't get stuck.
       delay(300);
     } else {
-
+      // Just drive around aimlessly until we get a reading
       driveDirection(FORWARD);
       delay(30);
     }
 
-
+  // Something in front of us, Try to get past.
+  // Prefers turning right
   } else {
     // TODO add dist check links voor we dit doen
     driveDirection(BACKWARD);
     delay(10);
+    // If there is a wall on our right, turn left instead.
     if (digitalRead(sensorRechts) == 0) {
 
       driveDirection(LEFT);
