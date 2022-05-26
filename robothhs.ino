@@ -538,26 +538,26 @@ void zigzag() {
   driveDirection(TurnLeft);
   delay(25);
   driveDirection(FORWARD);
-  delay(25);
+  delay(40);
   struct IRWaarden links = getIRDirection();
   // midden
   driveDirection(TurnRight);
   delay(25);
   driveDirection(FORWARD);
-  delay(25);
+  delay(40);
   struct IRWaarden midden = getIRDirection();
   // rechts
   driveDirection(TurnRight);
   delay(25);
   driveDirection(FORWARD);
-  delay(10);
+  delay(40);
   struct IRWaarden rechts = getIRDirection();
   Serial.print("links maxval: ");
   Serial.println(links.maxValue);
   if (links.maxValue > rechts.maxValue && links.maxValue > midden.maxValue) {
     // links zagen we het meeste
     driveDirection(TurnLeft);
-    delay(50);
+    delay(45); // iets korter omdat we in 1x door kunnen draaien
 
     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
     if (links.maxValue > 50) {
@@ -625,19 +625,56 @@ void loop() {
   // Nothing in front of us
   if (getDistance() > 20) {
     // zigzag();
-    struct IRWaarden links = getIRDirection();
+    struct IRWaarden meting = getIRDirection();
     Serial.print("max val: ");
-    Serial.println(links.maxValue);
+    Serial.println(meting.maxValue);
     // IR beacon in one of the 4 sides
-    if (links.maxValue > 20) {
-      driveDirection(links.maxDirection);
-      // TODO actually follow w/ zigzag.
-      // We might hit walls here driving sidewards/back but probably won't get stuck as the goal is moving.
+    if (meting.maxValue > 200) {
+        // Direct op af
 
-      // Drive to where we saw the beacon until we can't see it goal anymore, then repeat the whole sequence
-      while(analogRead(links.maxDirection) > 20){
-        delay(100);
-      }
+      driveDirection(meting.maxDirection);
+      delay(300);
+
+    }else if(meting.maxValue > 20){
+      int tries = 0;
+      // Turn until max meting, should probably filter outliers
+        if(meting.maxDirection == LEFT){
+          driveDirection(TurnLeft)
+        }else if(meting.maxDirection == RIGHT || meting.maxDirection == BACKWARD){
+          driveDirection(TurnRight)
+        }
+        // Turn in 10ms amounts until we have something equal or better than the last measurement in front of us.
+        // Give up after 500ms
+        while(analogRead(FORWARD) <= meting.maxValue && tries < 50){
+          tries++;
+          delay(10);
+        }
+        driveDirection(FORWARD);
+        if(tries <= 49){
+          delay(100);
+        }
+
+        // Zigzag to it
+        //zigazg();
+
+    }
+
+      // driveDirection(meting.maxDirection);
+      // // TODO actually follow w/ zigzag.
+      // // We might hit walls here driving sidewards/back but probably won't get stuck as the goal is moving.
+
+      // // Drive a bit towards our goal, then start zigzagging.
+      // delay(100);
+
+      // int tries = 0;
+      // while(tries < 25){
+      //   zigzag();
+      //   delay(40);
+      //   tries++;
+      // }
+
+      // // Rerun the script if we haven't found it within 25 tries. It probably escaped
+      
 
     } else {
       // Just drive around aimlessly until we get a reading
