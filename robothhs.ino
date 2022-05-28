@@ -630,34 +630,34 @@ void loop() {
     Serial.println(meting.maxValue);
     // IR beacon in one of the 4 sides
     if (meting.maxValue > 200) {
-        // Direct op af
+      // Direct op af
 
       driveDirection(meting.maxDirection);
       delay(300);
 
-    }else if(meting.maxValue > 20){
+    } else if (meting.maxValue > 20) {
       int tries = 0;
       // Turn until max meting, should probably filter outliers
-        if(meting.maxDirection == LEFT){
-          driveDirection(TurnLeft)
-        }else if(meting.maxDirection == RIGHT || meting.maxDirection == BACKWARD){
-          driveDirection(TurnRight)
-        }
-        // Turn in 10ms amounts until we have something equal or better than the last measurement in front of us.
-        // Give up after 500ms
-        while(analogRead(FORWARD) <= meting.maxValue && tries < 50){
-          tries++;
-          delay(10);
-        }
-        driveDirection(FORWARD);
-        if(tries <= 49){
-          delay(100);
-        }
+      if (meting.maxDirection == LEFT) {
+        driveDirection(TurnLeft);
+      } else if (meting.maxDirection == RIGHT || meting.maxDirection == BACKWARD) {
+        driveDirection(TurnRight);
+      }
+      // Turn in 10ms amounts until we have something equal or better than the last measurement in front of us.
+      // Give up after 500ms
+      while (analogRead(FORWARD) <= meting.maxValue && tries < 50) {
+        tries++;
+        delay(10);
+      }
+      driveDirection(FORWARD);
+      if (tries <= 49) {
+        delay(100);
+      }
 
-        // Zigzag to it
-        //zigazg();
+      // Zigzag to it
+      //zigazg();
 
-    }
+
 
       // driveDirection(meting.maxDirection);
       // // TODO actually follow w/ zigzag.
@@ -674,26 +674,27 @@ void loop() {
       // }
 
       // // Rerun the script if we haven't found it within 25 tries. It probably escaped
-      
+
 
     } else {
       // Just drive around aimlessly until we get a reading
       if (digitalRead(sensorRechts) == 0 && digitalRead(sensorLinks) == 1) {
-          // Muur rechts
-          driveDirection(LEFT);
-          delay(15);
+        // Muur rechts
+        driveDirection(LEFT);
+        delay(15);
       }
       if (digitalRead(sensorRechts) == 1 && digitalRead(sensorLinks) == 0) {
         // Muur links
-          driveDirection(RIGHT);
-          delay(15);
+        driveDirection(RIGHT);
+        delay(15);
       }
       driveDirection(FORWARD);
       delay(30);
     }
 
-  // Something in front of us, Try to get past.
-  // Prefers turning right
+
+    // Something in front of us, Try to get past.
+    // Prefers turning right
   } else {
     // TODO add dist check links voor we dit doen
     driveDirection(BACKWARD);
@@ -714,6 +715,8 @@ void loop() {
       delay(10);
     }
   }
-
-
 }
+
+
+
+
