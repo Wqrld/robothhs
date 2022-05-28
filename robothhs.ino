@@ -533,79 +533,113 @@ void richtingCalibreren() {
 
 }
 
+// void zigzag() {
+//   // links
+//   driveDirection(TurnLeft);
+//   delay(25);
+//   driveDirection(FORWARD);
+//   delay(40);
+//   struct IRWaarden links = getIRDirection();
+//   // midden
+//   driveDirection(TurnRight);
+//   delay(25);
+//   driveDirection(FORWARD);
+//   delay(40);
+//   struct IRWaarden midden = getIRDirection();
+//   // rechts
+//   driveDirection(TurnRight);
+//   delay(25);
+//   driveDirection(FORWARD);
+//   delay(40);
+//   struct IRWaarden rechts = getIRDirection();
+//   Serial.print("links maxval: ");
+//   Serial.println(links.maxValue);
+//   if (links.maxValue > rechts.maxValue && links.maxValue > midden.maxValue) {
+//     // links zagen we het meeste
+//     driveDirection(TurnLeft);
+//     delay(45); // iets korter omdat we in 1x door kunnen draaien
+
+//     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+//     if (links.maxValue > 50) {
+//       driveDirection(links.maxDirection);
+//       int waarde = analogRead(links.maxDirection);
+//       while (waarde > 30) {
+//         waarde = analogRead(links.maxDirection);
+//         delay(20);
+//       }
+//     }
+
+//   } else  if (midden.maxValue > links.maxValue && midden.maxValue > rechts.maxValue) {
+//     // midden zagen we het meeste
+//     driveDirection(TurnLeft);
+//     delay(25);
+
+
+//     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+//     if (midden.maxValue > 50) {
+//       driveDirection(midden.maxDirection);
+//       int waarde = analogRead(midden.maxDirection);
+//       while (waarde > 30) {
+//         waarde = analogRead(midden.maxDirection);
+//         delay(20);
+//       }
+//     }
+
+//   } else {
+//     // We staan al rechts, dus we hoeven niet te draaien.
+
+//     // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
+//     if (rechts.maxValue > 50) {
+//       driveDirection(rechts.maxDirection);
+//       int waarde = analogRead(rechts.maxDirection);
+//       while (waarde > 30) {
+//         waarde = analogRead(rechts.maxDirection);
+//         delay(10);
+//       }
+//     }
+
+//   }
+
+//   // Iets naar voren presumably
+//   if (getDistance() > 15) {
+//     driveDirection(FORWARD);
+//   }
+
+
+
+
+// }
+
+
 void zigzag() {
-  // links
   driveDirection(TurnLeft);
-  delay(25);
-  driveDirection(FORWARD);
-  delay(40);
-  struct IRWaarden links = getIRDirection();
-  // midden
+  delay(20);
+  int links = analogRead(FORWARD);
   driveDirection(TurnRight);
-  delay(25);
-  driveDirection(FORWARD);
-  delay(40);
-  struct IRWaarden midden = getIRDirection();
-  // rechts
+  delay(20);
+  int voor = analogRead(FORWARD);
+  driveDirection(RELEASE); // Kort stilstaan om niet dat doorrol-effect te hebben
+  delay(5);
   driveDirection(TurnRight);
-  delay(25);
-  driveDirection(FORWARD);
-  delay(40);
-  struct IRWaarden rechts = getIRDirection();
-  Serial.print("links maxval: ");
-  Serial.println(links.maxValue);
-  if (links.maxValue > rechts.maxValue && links.maxValue > midden.maxValue) {
-    // links zagen we het meeste
+  delay(20);
+  int rechts = analogRead(FORWARD);
+  if (links > rechts && links > voor) {
+    // links
     driveDirection(TurnLeft);
-    delay(45); // iets korter omdat we in 1x door kunnen draaien
-
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if (links.maxValue > 50) {
-      driveDirection(links.maxDirection);
-      int waarde = analogRead(links.maxDirection);
-      while (waarde > 30) {
-        waarde = analogRead(links.maxDirection);
-        delay(20);
-      }
-    }
-
-  } else  if (midden.maxValue > links.maxValue && midden.maxValue > rechts.maxValue) {
-    // midden zagen we het meeste
+    delay(20);
+    driveDirection(RELEASE); // Kort stilstaan om niet dat doorrol-effect te hebben
+    delay(5);
     driveDirection(TurnLeft);
-    delay(25);
-
-
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if (midden.maxValue > 50) {
-      driveDirection(midden.maxDirection);
-      int waarde = analogRead(midden.maxDirection);
-      while (waarde > 30) {
-        waarde = analogRead(midden.maxDirection);
-        delay(20);
-      }
-    }
-
+    delay(20);
+  } else if (voor > links && voor > rechts) {
+    driveDirection(TurnLeft);
+    delay(20);
+    // voor
   } else {
-    // We staan al rechts, dus we hoeven niet te draaien.
-
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if (rechts.maxValue > 50) {
-      driveDirection(rechts.maxDirection);
-      int waarde = analogRead(rechts.maxDirection);
-      while (waarde > 30) {
-        waarde = analogRead(rechts.maxDirection);
-        delay(10);
-      }
-    }
-
+    // rechts
   }
-
-  // Iets naar voren presumably
-  if (getDistance() > 15) {
-    driveDirection(FORWARD);
-  }
-
-
+  // Nu staan we er theoretisch rechter voor
+  driveDirection(FORWARD);
 
 
 }
@@ -650,8 +684,20 @@ void loop() {
         delay(10);
       }
       driveDirection(FORWARD);
+
+      // If we have found it in front of us and not the timeout, go forward a bit.
       if (tries <= 49) {
         delay(100);
+
+
+        int tries = 0;
+        while (tries < 25) {
+          zigzag();
+          delay(50);
+          tries++;
+        }
+
+
       }
 
       // Zigzag to it
