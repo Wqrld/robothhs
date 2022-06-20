@@ -367,8 +367,16 @@ void loop() {
   if (getDistance() > 20) {
     // IR beacon in one of the 4 sides
     if (waarden.maxValue > 20) {
-      driveDirection(oppositeDirectionOf(waarden.maxDirection)); // probably want to go opposite and then a 2nd way, plus check for walls _!_!_!_!_!_!__!_!_!
+      driveDirection(oppositeDirectionOf(waarden.maxDirection));
       delay(300);
+      if (waarden.maxDirection == FORWARD || waarden.maxDirection == BACKWARD) { // voor voor en achter, draai een beetje zodat we niet weer recht op de tegenstander afrijden.
+        if (digitalRead(sensorRechts) == 0) {
+          driveDirection(TurnLeft);
+        } else if (digitalRead(sensorLinks) == 0) {
+          driveDirection(TurnRight);
+        }
+        delay(50);
+      }
     } else {
       // Just drive around aimlessly until we get a reading
 
@@ -402,8 +410,14 @@ void loop() {
     } else if (waarden.maxValue > 20 && waarden.maxDirection == BACKWARD) { // The risk is having a wall behind us here and getting stuck, but that should not be a big deal with a moving goal. Add a timeout if it does become one.
       driveDirection(oppositeDirectionOf(waarden.maxDirection)); // !BACKWARD = forward
       delay(300);
-    }
+      if (digitalRead(sensorRechts) == 0) {
+        driveDirection(TurnLeft);
+      } else if (digitalRead(sensorLinks) == 0) {
+        driveDirection(TurnRight);
+      }
+      delay(50);
 
+    }
     // No goal in sight
     // If there is a wall on our right, turn left instead.
     else if (digitalRead(sensorRechts) == 0) {
