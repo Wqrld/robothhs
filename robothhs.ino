@@ -333,6 +333,22 @@ struct IRWaarden getIRDirection() {
   return waarde;
 }
 
+// Get the opposite direction for a given direction.
+int oppositeDirectionOf(int dir) {
+  if (dir == FORWARD) {
+    return BACKWARD;
+  }
+  else if (dir == BACKWARD) {
+    return FORWARD;
+  }
+  else if (dir == LEFT) {
+    return RIGHT;
+  }
+  else if (dir == RIGHT) {
+    return LEFT;
+  }
+
+}
 
 // The main loop for our program.
 // Delays are kept as low as possible to have a higher chance of the IR beacon picking up a vehicle driving past.
@@ -351,7 +367,7 @@ void loop() {
   if (getDistance() > 20) {
     // IR beacon in one of the 4 sides
     if (waarden.maxValue > 20) {
-      driveDirection(waarden.maxDirection);
+      driveDirection(oppositeDirectionOf(waarden.maxDirection)); // probably want to go opposite and then a 2nd way, plus check for walls _!_!_!_!_!_!__!_!_!
       delay(300);
     } else {
       // Just drive around aimlessly until we get a reading
@@ -377,14 +393,14 @@ void loop() {
     delay(10);
 
     // Drive towards our goal if there is nothing in our way, even with a wall infront of us
-    if (waarden.maxValue > 20 && waarden.maxDirection == LEFT && digitalRead(sensorLinks) == 1) { // links vrij
-      driveDirection(waarden.maxDirection); // LEFT
+    if (waarden.maxValue > 20 && waarden.maxDirection == LEFT && digitalRead(sensorRechts) == 1) { // rechts vrij
+      driveDirection(oppositeDirectionOf(waarden.maxDirection)); // !LEFT = right
       delay(300);
-    } else if (waarden.maxValue > 20 && waarden.maxDirection == RIGHT && digitalRead(sensorRechts) == 1) { // rechts vrij
-      driveDirection(waarden.maxDirection); // RIGHT
+    } else if (waarden.maxValue > 20 && waarden.maxDirection == RIGHT && digitalRead(sensorLinks) == 1) { // links vrij
+      driveDirection(oppositeDirectionOf( waarden.maxDirection)); // !RIGHT = left
       delay(300);
     } else if (waarden.maxValue > 20 && waarden.maxDirection == BACKWARD) { // The risk is having a wall behind us here and getting stuck, but that should not be a big deal with a moving goal. Add a timeout if it does become one.
-      driveDirection(waarden.maxDirection); // BACKWARD
+      driveDirection(oppositeDirectionOf(waarden.maxDirection)); // !BACKWARD = forward
       delay(300);
     }
 
