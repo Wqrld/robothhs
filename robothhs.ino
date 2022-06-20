@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include <String.h>
 
 //todo trigger pin echo pin distout distin
 // linksachter motor2
@@ -11,7 +10,7 @@ bool manual = 0;
 
 // TODO CHANGE THESE PINS
 #define sensorLinks 13
-#define sensorRechts 12
+#define sensorRechts 9
 
 #define LA 2
 #define LV 1
@@ -30,9 +29,6 @@ bool manual = 0;
 // Sensors
 #define EchoPin A0 // are these defined correctly? probably want to switch around
 #define TriggerPin A1
-
-// threshold voor hoe goed we de led moeten kunnen zien om te gaan rijden
-#define threshold 50
 
 // Bit positions in the 74HCT595 shift register output
 #define MOTOR1_A 2
@@ -64,13 +60,6 @@ bool manual = 0;
 #define servoAngleRechtdoor 90
 #define servoAngleRechts 135
 
-// Motor frequency definitions (all 1khz, may be audible but best torque)
-#define MOTOR12_1KHZ _BV(CS22)              // divide by 64
-#define MOTOR34_1KHZ _BV(CS01) | _BV(CS00)  // divide by 64
-
-#define MOTOR12_8KHZ _BV(CS21)              // divide by 8
-#define MOTOR34_8KHZ _BV(CS01)              // divide by 8
-
 // Servo
 #define servoPin 10
 Servo s;
@@ -90,84 +79,9 @@ int IRBakens[] = {A2, A3, A4, A5};
                MOTORS
 ******************************************/
 
-// Timer registers:
-// TCCR: timer control register, zegmaar alle settings
-// OCR: output compare register, voor de duty cycle
-
-// VGM20 & VGM21 bits: waveform generation. WGM20 en WGM21 op op 0b11 geven aan om fast pwm te gebruiken.
-// Alternatief is phase correct pwm, zie https://docs.arduino.cc/tutorials/generic/secrets-of-arduino-pwm
-// COMn* bits: Compare on match, enable/disable/invert output n
-// in ons geval zetten we ze aan op non-inverted.
-
-inline void initPWM1(uint8_t freq) {
-
-  // use PWM from timer2A on PB3 (Arduino pin #11)
-  TCCR2A |= _BV(COM2A1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2a
-  TCCR2B = freq & 0x7;
-
-  // Duty cycle op 0
-  OCR2A = 0;
-
-
-  pinMode(11, OUTPUT);
-
-}
-
-inline void initPWM2(uint8_t freq) {
-
-  // use PWM from timer2B (pin 3)
-  TCCR2A |= _BV(COM2B1) | _BV(WGM20) | _BV(WGM21); // fast PWM, turn on oc2b
-  TCCR2B = freq & 0x7;
-
-  // Duty cycle op 0
-  OCR2B = 0;
-
-
-  pinMode(3, OUTPUT);
-}
-
-
-inline void initPWM3(uint8_t freq) {
-
-  // use PWM from timer0A / PD6 (pin 6)
-  TCCR0A |= _BV(COM0A1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on OC0A
-  //TCCR0B = freq & 0x7;
-
-  // Duty cycle op 0
-  OCR0A = 0;
-
-  pinMode(6, OUTPUT);
-}
-
-inline void initPWM4(uint8_t freq) {
-
-  // use PWM from timer0B / PD5 (pin 5)
-  TCCR0A |= _BV(COM0B1) | _BV(WGM00) | _BV(WGM01); // fast PWM, turn on oc0a
-  //TCCR0B = freq & 0x7;
-
-  // Duty cycle op 0
-  OCR0B = 0;
-
-  pinMode(5, OUTPUT);
-}
 
 // Set duty cycles
 void setSpeed(uint8_t speed) {
-  // OCR = output compare register
-  // Je timer telt op tot 255, en gaat uit als de waarde van het OCR* register gehaald is.
-  // Hierdoor krijg je een duty cycle op een schaal van 0-255
-
-  // motor 1, use PWM from timer2A on PB3 (Arduino pin #11)
-  //  OCR2A = speed;
-
-  // motor 2, use PWM from timer2B (pin 3)
-  // OCR2B = speed;
-
-  // motor 3, use PWM from timer0A / PD6 (pin 6)
-  // OCR0A = speed;
-
-  // motor 4, use PWM from timer0B / PD5 (pin 5)
-  // OCR0B = speed;
 
   analogWrite(11, speed);
   analogWrite(3, speed);
@@ -176,29 +90,25 @@ void setSpeed(uint8_t speed) {
 }
 
 
-// zet alle motoren op 0 en stel de timers in.
-void initMotor(uint8_t num, uint8_t freq) {
+// zet alle motoren op 0.
+void initMotor(uint8_t num) {
 
   switch (num) {
     case 1:
       latch_state &= ~_BV(MOTOR1_A) & ~_BV(MOTOR1_B); // set both motor pins to 0
       latch_tx();
-      //initPWM1(freq);
       break;
     case 2:
       latch_state &= ~_BV(MOTOR2_A) & ~_BV(MOTOR2_B); // set both motor pins to 0
       latch_tx();
-      //initPWM2(freq);
       break;
     case 3:
       latch_state &= ~_BV(MOTOR3_A) & ~_BV(MOTOR3_B); // set both motor pins to 0
       latch_tx();
-      // initPWM3(freq);
       break;
     case 4:
       latch_state &= ~_BV(MOTOR4_A) & ~_BV(MOTOR4_B); // set both motor pins to 0
       latch_tx();
-      // initPWM4(freq);
       break;
   }
 }
@@ -324,17 +234,19 @@ void setup() {
   pinMode(MOTORDATA, OUTPUT);
   pinMode(MOTORCLK, OUTPUT);
 
+  pinMode(sensorLinks, INPUT);
+  pinMode(sensorRechts, INPUT);
+
   latch_state = 0; // reset all motor states
   latch_tx();
 
   // Enable motor
   digitalWrite(MOTORENABLE, LOW);
 
-  //1khz geeft de beste efficiency
-  initMotor(1, MOTOR12_8KHZ);
-  initMotor(2, MOTOR12_8KHZ);
-  initMotor(3, MOTOR34_8KHZ);
-  initMotor(4, MOTOR34_8KHZ);
+  initMotor(1);
+  initMotor(2);
+  initMotor(3);
+  initMotor(4);
 
   // speed (duty cycle) up to 255, maar tot 180 veilig
   setSpeed(180);
@@ -405,198 +317,43 @@ void checkBlueTooth() {
   }
 }
 
-//void voorlinksrechts() {
-//
-//
-//  driveDirection(FORWARD);
-//  //Obstakel staat voor het wagen
-//  int VV = getDistance(); //de opgeslagen afstand van voor
-//  if (VV < 20 || VV > 900) {
-//    driveDirection(RELEASE);
-//    //draait servo dan naar links en checkt of er links een muur zit
-//    s.write(servoAnglelinks);
-//    delay(100);
-//    int LL = getDistance(); //de opgeslagen afstand van links
-//    if ((LL < 20 || LL > 900)) {
-//      delay(100); // luc
-//      //links zit een muur dan gaan we naar rechts kijken met UR sensor
-//      s.write(servoAngleRechts);
-//      int RR = getDistance(); //de opgeslagen afstand van rechts
-//      if (RR > 10  && RR < 900 ) {
-//        //als rechts ruimte is dan gaan we rechts
-//        driveDirection(TurnRight);
-//        delay(150);
-//        driveDirection(RELEASE);
-//        delay(100);
-//        s.write(servoAngleRechtdoor);
-//        driveDirection(FORWARD);
-//        //Als links en rechts een muur zit dan rijden we even naar achter
-//      } else {
-//        driveDirection(BACKWARD);
-//        delay(300);
-//      }
-//      //als linker kant vrij is dan gaat het naar links
-//    } else {
-//      driveDirection(TurnLeft);
-//      delay(150);
-//      driveDirection(RELEASE);
-//      delay(100);
-//      s.write(servoAngleRechtdoor);
-//      driveDirection(FORWARD);
-//    }
-//  }
-//
-//}
 
 struct IRWaarden {
   int maxValue;
   int maxDirection;
-  int IRWaarden[5];
 };
 
 struct IRWaarden getIRDirection() {
   int IRWaardenArray[5] = { 0 };
-  
-  int maxVal = 0;
-  int maxZ = 0;
-  int secondMaxDirection = 0;
-  int secondMaxValue = 0;
 
-  for (int z = 0; z < 4; z++) {
+  int maxValue = 0;
+  int hoogsteRichting = 0;
+  int secondMaxDirection = 0;
+  int secondmaxValue = 0;
+
+  for (int richting = 0; richting < 4; richting++) {
     // doe een lezing en sla deze op
-    IRWaardenArray[z] = analogRead(IRBakens[z]);
+    IRWaardenArray[richting] = analogRead(IRBakens[richting]);
 
     // Is dit de hoogste waarde?
-    if (IRWaardenArray[z] > maxVal) {
+    if (IRWaardenArray[richting] > maxValue) {
 
-      secondMaxValue = maxVal;
-      secondMaxDirection = maxZ;
-      maxVal = IRWaardenArray[z];
-      maxZ = z;
+      secondmaxValue = maxValue;
+      secondMaxDirection = hoogsteRichting;
+      maxValue = IRWaardenArray[richting];
+      hoogsteRichting = richting;
     }
-
 
   }
 
-  struct IRWaarden waarde = { maxVal, maxZ };
-  // Workaround omdat c++ geen arrays in structs wil hebben zonder pointers.
-  memcpy(waarde.IRWaarden, IRWaardenArray, sizeof(int) * 5);
+  struct IRWaarden waarde = { maxValue, hoogsteRichting };
   return waarde;
 }
 
 
-struct IRWaarden IRcalibreren() {
-  int pogingen = 0;
-  struct IRWaarden waarden;
-  while (true) {
-
-    waarden = getIRDirection();
-
-    // Draai tot we een waarde boven de 50 hebben of als we het 20 keer geprobeert hebben.
-    if (waarden.maxValue > 50 || pogingen > 20) {
-      break;
-    } else {
-      driveDirection(TurnLeft);
-      delay(25);
-      driveDirection(RELEASE);
-      pogingen++;
-
-    }
-
-  }
-  return waarden;
-
-}
-
-void richtingCalibreren() {
-
-  bool muurlinks = digitalRead(sensorLinks);
-  bool muurrechts = digitalRead(sensorRechts);
-
-  if (muurlinks && !muurrechts) {
-    // kort naar achter en dan rechts
-    driveDirection(BACKWARD);
-    delay(10);
-    driveDirection(RIGHT);
-    delay(30);
-    driveDirection(RELEASE);
-  } else if (!muurlinks && muurrechts) {
-    // kort naar achter en dan links.
-    driveDirection(BACKWARD);
-    delay(10);
-    driveDirection(LEFT);
-    delay(30);
-    driveDirection(RELEASE);
-  }
-
-
-
-}
-
-void zigzag() {
-  // links
-  driveDirection(TurnLeft);
-  delay(10);
-  struct IRWaarden links = getIRDirection();
-  // midden
-  driveDirection(TurnRight);
-  delay(10);
-  struct IRWaarden midden = getIRDirection();
-  // rechts
-  delay(10);
-  struct IRWaarden rechts = getIRDirection();
-  if(links.maxValue >= rechts.maxValue && links.maxValue >= midden.maxValue){
-    // links zagen we het meeste
-    driveDirection(TurnLeft);
-    delay(20);
-
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(links.maxValue > 300){
-      driveDirection(links.maxDirection);
-      while(analogRead(links.maxDirection) > 100){
-        delay(10);
-      }
-    }
-    
-  }else  if(midden.maxValue >= links.maxValue && midden.maxValue >= rechts.maxValue){
-    // midden zagen we het meeste
-    driveDirection(TurnLeft);
-    delay(10);
-
-
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(midden.maxValue > 300){
-      driveDirection(midden.maxDirection);
-      while(analogRead(midden.maxDirection) > 100){
-        delay(10);
-      }
-    }
-    
-  } else {                                                                                       
-    // We staan al rechts 
-
-     
-    // TODO hier een while loop van maken zodat we stoppen als het karretje voorbij is of we een muur raken
-    if(rechts.maxValue > 300){
-      driveDirection(rechts.maxDirection);
-      while(analogRead(rechts.maxDirection) > 100){
-        delay(10);
-      }
-    }
-    
-  }
-  
-  // Iets naar voren presumably
-  if(getDistance() > 15){
-   driveDirection(FORWARD); 
-  }
-
-    
-}
-
-int TurnTries = 0;
+// The main loop for our program.
+// Delays are kept as low as possible to have a higher chance of the IR beacon picking up a vehicle driving past.
 void loop() {
-  // Reset alle info voor een nieuwe run
 
 
   // Hebben we nieuwe bluetooth commandos gehad?
@@ -606,18 +363,49 @@ void loop() {
   }
 
 
+  // Nothing in front of us
+  if (getDistance() > 20) {
+    struct IRWaarden waarden = getIRDirection();
+    // IR beacon in one of the 4 sides
+    if (waarden.maxValue > 20) {
+      driveDirection(waarden.maxDirection);
+      delay(300);
+    } else {
+      // Just drive around aimlessly until we get a reading
 
+      // Lees de sensoren aan de zijkant uit, 0 is hier een muur.
+      if (digitalRead(sensorRechts) == 0 && digitalRead(sensorLinks) == 1) {
+        // Muur rechts
+        driveDirection(LEFT);
+        delay(70);
+      }
+      if (digitalRead(sensorRechts) == 1 && digitalRead(sensorLinks) == 0) {
+        // Muur links
+        driveDirection(RIGHT);
+        delay(70);
+      }
+      driveDirection(FORWARD);
+      delay(30);
+    }
 
-   if (getDistance() > 10) {
-    driveDirection(FORWARD);
-    delay(10);
+    // Something in front of us, Try to get past.
   } else {
     driveDirection(BACKWARD);
-    delay(30);
-    driveDirection(LEFT);
-    delay(30);
-    driveDirection(TurnLeft);
-    delay(50);
+    delay(10);
+    // If there is a wall on our right, turn left instead.
+    if (digitalRead(sensorRechts) == 0) {
+      driveDirection(LEFT);
+      delay(5);
+      driveDirection(TurnLeft);
+      delay(10);
+
+    } else {
+      driveDirection(RIGHT);
+      delay(5);
+      driveDirection(TurnRight);
+      delay(10);
+    }
   }
+
 
 }
