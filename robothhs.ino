@@ -8,7 +8,6 @@
 
 bool manual = 0;
 
-// TODO CHANGE THESE PINS
 #define sensorLinks 13
 #define sensorRechts 9
 
@@ -16,15 +15,6 @@ bool manual = 0;
 #define LV 1
 #define RV 4
 #define RA 3
-
-//////////////////
-// Docs voor AFMOTOR
-// https://codebender.cc/library/AFMotor#AFMotor.cpp
-//
-// #define _BV(bit) (1 << (bit))
-// #define bit(b) (1UL << (b))
-//
-/////////////////
 
 // Sensors
 #define EchoPin A0 // are these defined correctly? probably want to switch around
@@ -56,16 +46,9 @@ bool manual = 0;
 #define TurnLeft 5
 #define TurnRight 6
 
-#define servoAnglelinks 45
-#define servoAngleRechtdoor 90
-#define servoAngleRechts 135
-
 // Servo
 #define servoPin 10
 Servo s;
-
-//Afstand van 1 blok
-#define afstandblok 900
 
 // Stored the state of the shift register
 static uint8_t latch_state;
@@ -362,10 +345,10 @@ void loop() {
     return; // If manual, don't run through the algorithm.
   }
 
+  struct IRWaarden waarden = getIRDirection();
 
   // Nothing in front of us
   if (getDistance() > 20) {
-    struct IRWaarden waarden = getIRDirection();
     // IR beacon in one of the 4 sides
     if (waarden.maxValue > 20) {
       driveDirection(waarden.maxDirection);
@@ -385,15 +368,29 @@ void loop() {
         delay(70);
       }
       driveDirection(FORWARD);
-      delay(30);
+      delay(10);
     }
 
     // Something in front of us, Try to get past.
   } else {
     driveDirection(BACKWARD);
     delay(10);
+
+    // Drive towards our goal if there is nothing in our way, even with a wall infront of us
+    if (waarden.maxValue > 20 && waarden.maxDirection == LEFT && digitalRead(sensorLinks) == 1) { // links vrij
+      driveDirection(waarden.maxDirection); // LEFT
+      delay(300);
+    } else if (waarden.maxValue > 20 && waarden.maxDirection == RIGHT && digitalRead(sensorRechts) == 1) { // rechts vrij
+      driveDirection(waarden.maxDirection); // RIGHT
+      delay(300);
+    } else if (waarden.maxValue > 20 && waarden.maxDirection == BACKWARD) { // The risk is having a wall behind us here and getting stuck, but that should not be a big deal with a moving goal. Add a timeout if it does become one.
+      driveDirection(waarden.maxDirection); // BACKWARD
+      delay(300);
+    }
+
+    // No goal in sight
     // If there is a wall on our right, turn left instead.
-    if (digitalRead(sensorRechts) == 0) {
+    else if (digitalRead(sensorRechts) == 0) {
       driveDirection(LEFT);
       delay(5);
       driveDirection(TurnLeft);
@@ -405,6 +402,7 @@ void loop() {
       driveDirection(TurnRight);
       delay(10);
     }
+
   }
 
 
