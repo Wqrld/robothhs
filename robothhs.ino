@@ -364,7 +364,7 @@ void loop() {
 
 
   // Nothing in front of us
-  if (getDistance() > 15) {
+  if (getDistance() > 20) {
     struct IRWaarden waarden = getIRDirection();
     // IR beacon in one of the 4 sides
     if (waarden.maxValue > 20) {
